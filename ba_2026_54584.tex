@@ -1,0 +1,69 @@
+\documentclass[12pt,a4paper]{report}
+
+% --- packages ---
+\usepackage[ngerman]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{csquotes}
+\usepackage{hyperref}
+\usepackage[backend=biber,style=authoryear]{biblatex}
+\addbibresource{literatur.bib}
+
+
+\begin{document}
+	
+	% Titelseite
+	\begin{titlepage}
+		\centering
+		{\Large Hochschule Mittweida\\[1.5cm]}
+		{\huge \textbf{Die Downtime-freie Bereitstellung von Microservices in Kubernetes Umgebungen.}\\[1.5cm]}
+		{\large Bachelorarbeit\\[0.5cm]}
+		\vfill
+		\begin{tabular}{ll}
+			Autor: & Paul Fuchs\\
+			Matrikelnummer: & 54584 \\
+			Studiengang: & Medieninformatik und Interaktives Entertainment \\
+			Erstprüfer: & Prof. Philipp Klimant  \\
+			Zweitprüfer: & Dr. Beier-Grunwald \\
+			Abgabedatum: & 27.03.2026
+		\end{tabular}
+	\end{titlepage}
+	
+	% Inhaltsverzeichnis
+\tableofcontents
+\listoffigures
+\listoftables
+
+% Einleitung
+\chapter{Einleitung}
+\section{Motivation}
+
+% Grundlagen	
+\chapter{Theoretische Grundlagen}
+\section{Microservices und deren Architektur}
+
+Microservices und Microservice Architekturen werden als Verbund mehrerer Services beschrieben, von denen jeder Service als eigener Prozess läuft und deren Kommunikation über leichtgewichtige Mechanismen, oft eine HTTP-Resource API stattfindet. Die Services werden auf Geschäftsprozesse zugeschnitten und lassen sich unabhängig voneinander bereitstellen, testen und nach der Bereitstellung skalieren. Um Microservices besser beschreiben zu können, ist ein Blick auf den historischen Bedarf sinnvoll. Microservice Architekturen sind aus der Notwendigkeit entstanden, monolithische Anwendungen aufzubrechen, um die Komplexität zu vereinfachen und neue Funktionen der Anwendung schneller bereitstellen zu können. Unternehmensanwednungen bestehen für gewöhnlich aus drei Hauptbestandteilen. Einem User-Interface für den Nutzer, einer Datenbank und der serverseitigen Anwendung, welche HTTP Requests verarbeitet, Domänenlogik ausführt, Daten aus der Datenbank abruft, aktualisiert und HTML Ansichten an den Browser sendet. Die serverseitige Anwendung wird als monolith bezeichnet, wenn die Verarbeitung aller eingehenden Requests dieser Applikation obliegt. Während dies ein erfolgreicher Weg für eine Anwendung sein kann und der natürliche Weg ist, eine neue Applikation zu entwickeln, steigt mit der Größe der Anwendung auch die Komplexität und folglich die Zeit, die benötigt wird, die Anwendung zu bauen und neue Funktionen bereitzustellen. Ein weiterer Nachteil von monolithischen gegenüber Microservice Anwendungen ist die Ressourcenverwertung. Steigen die Nutzerzahlen der Applikation, müssen mehr Anwendungen bereitgestellt werden, um die Anfragen der Nutzer zu beantworten. Bei monolithischen Anwendungen wird dabei die Anzahl der serverseitigen Applikationen erhöht. Hingegen wird bei Microservice Architekturen nur die Zahl der Komponenten erhöht, die für die Verarbeitung dieser Anfragen zuständig sind.
+\parencite{Fowler2014,AWS2026}
+\subsection{Charakteristika von Microservices}
+Aus dem vorangegangenen Abschnitt ist bereits ersichtlich, dass es keine formale Definition von Microservices gibt. Eher wird beschrieben welche gemeinsamen Merkmale für Microservice Architekturen identifiziert werden können. 
+\subsubsection{Komponentisierung durch Services}
+Als Komponente bezeichnen \textcite{Fowler2014} eine Einheit von Software, die individuell austauschbar und aktualisierbar ist. Weiter wird beschrieben, dass Microservice Architekturen Bibliotheken nutzen, die in ein Programm eingebunden werden und in-memory Funktionen Aufrufe ausführen. Hingegen sind Services out-of-process Komponenten, die mittels Mechanismen, wie Web-Service Requests oder Remote Procedure Calls, kommunizieren. Ein Hauptargument für den Vorzug von Services, vor Bibliotheken ist, dass jene unabhängig bereitgestellt werden können. Wenn die Anwendung aus mehreren Bibliotheken in einem einzelnen Prozess ausgeführt werden, führt eine Veränderung einer Komponente dazu, dass die gesamte Applikation erneut ausgerollt werden muss. Ist diese Anwendung jedoch in unterschiedliche Services aufgeteilt, so führen Veränderungen an einem einzelnen Service dazu, dass nur dieser neu ausgerollt werden muss, solange Entwickler keine Schnittstellen-Änderungen implementieren, die die Kommunikation zwischen den Services beeinflusst. 
+
+\section{Kubernetes}
+\section{Continuous Integration \& Continuous Delivery}	
+
+% Deployment Strategien
+\chapter{Technische Strategien}
+
+\chapter{Metriken}
+
+\chapter{Implementierung und Analyse}
+
+% Literaturverzeichnis
+\printbibliography
+
+\end{document}
