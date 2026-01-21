@@ -1,42 +1,119 @@
-\documentclass[12pt,a4paper]{report}
+\documentclass[
+	12pt,
+	a4paper,
+	twoside,
+	openright
+]{report}
 
 % --- packages ---
+\usepackage[
+ top=2cm,
+ bottom=2.6cm,
+ inner=3.5cm,
+ outer=2.5cm
+]{geometry}
 \usepackage[ngerman]{babel}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{setspace}
+\usepackage{emptypage}
 \usepackage{graphicx}
+\usepackage{tikz}
 \usepackage{amsmath, amssymb}
 \usepackage{booktabs}
 \usepackage{csquotes}
-\usepackage{hyperref}
+\usepackage{fontspec}
+\setmainfont{Arial}
+\usepackage{fancyhdr}
 \usepackage[backend=biber,style=authoryear]{biblatex}
+\usepackage{hyperref}
+
+% bib
 \addbibresource{literatur.bib}
 
+%\setlength{\headheight}{14pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+
+
+\pagestyle{fancy}
+\fancyhf{}
+
+\renewcommand{\headrulewidth}{0.5pt}
+
+% Außen: Seitenzahl | Innen: Kapitel
+\fancyhead[RO]{\thepage}
+\fancyhead[LE]{\thepage}
+\fancyhead[LO]{\nouppercase{\leftmark}}
+\fancyhead[RE]{\nouppercase{\leftmark}}
+
+% Kapitelmarke ohne "Kapitel X"
+\renewcommand{\chaptermark}[1]{%
+	\markboth{#1}{}%
+}
+
+\fancypagestyle{plain}{
+	\fancyhf{}
+	\renewcommand{\headrulewidth}{0.5pt}
+	\fancyhead[RO]{\thepage}
+	\fancyhead[LE]{\thepage}
+	\fancyhead[LO]{\nouppercase{\leftmark}}
+	\fancyhead[RE]{\nouppercase{\leftmark}}
+}
+
+\setstretch{1.3}
 
 \begin{document}
 	
+	\include{einband}
+	
+	\thispagestyle{empty}
 	% Titelseite
-	\begin{titlepage}
-		\centering
-		{\Large Hochschule Mittweida\\[1.5cm]}
-		{\huge \textbf{Die Downtime-freie Bereitstellung von Microservices in Kubernetes Umgebungen.}\\[1.5cm]}
-		{\large Bachelorarbeit\\[0.5cm]}
+	\begin{titlepage}	
+		\raggedleft
+		\vspace*{2cm}
+		
+		{\large Fakultät Angewandte Computer- und Biowissenschaften\par}
+
+		\vspace{1cm}
+		\hrule
+		\vspace{0.5cm}
+		{\huge \textbf{BACHELORARBEIT}\par}
+		\vspace{0.5cm}
+		\hrule
+		\vspace{2cm}
+		
+		{\LARGE \textbf{Die Downtime-freie Bereitstellung von Microservices in Kubernetes Umgebungen.}\\[1.5cm]}
 		\vfill
-		\begin{tabular}{ll}
-			Autor: & Paul Fuchs\\
-			Matrikelnummer: & 54584 \\
-			Studiengang: & Medieninformatik und Interaktives Entertainment \\
-			Erstprüfer: & Prof. Philipp Klimant  \\
-			Zweitprüfer: & Dr. Beier-Grunwald \\
-			Abgabedatum: & 27.03.2026
+		\raggedleft
+		\begin{tabular}{l}
+			Autor: \\ \textbf {Paul Fuchs} \\ \\
+			Seminargruppe: \\ MI20w2-B \\ \\
+			Studiengang: \\ Medieninformatik und  \\ Interaktives Entertainment \\ \\
+			Erstprüfer: \\ Prof. Philipp Klimant  \\ \\
+			Zweitprüfer: \\ Dr. Beier-Grunwald \\ \\
+			Einreichung: \\ Mittweida, den 27.03.2026
 		\end{tabular}
 	\end{titlepage}
-	
+
+\cleardoublepage
+\subsubsection{Bibliografische Angaben}
+Fuchs, Paul: Die Downtime-freie Bereitstellung von Microservices in Kubernetes Umgebungen. TODO:  5 Seiten, 14 Abbildungen, 1 Anlage mit Quelltexten, Hochschule Mittweida (FH), Fachbereich Angewandte Computer- und Biowissenschaften \\ \\
+Bachelorarbeit 2026
+\vfill 
+Abstract
+TODO 
+
+	\pagenumbering{Roman}
 	% Inhaltsverzeichnis
-\tableofcontents
-\listoffigures
-\listoftables
+	
+		\tableofcontents
+		\listoffigures
+		\listoftables
+
+	\cleardoublepage
+
+	\pagenumbering{arabic}
 
 % Einleitung
 \chapter{Einleitung}
@@ -44,26 +121,48 @@
 
 % Grundlagen	
 \chapter{Theoretische Grundlagen}
+
+%Microservices
 \section{Microservices und deren Architektur}
 
 Microservices und Microservice Architekturen werden als Verbund mehrerer Services beschrieben, von denen jeder Service als eigener Prozess läuft und deren Kommunikation über leichtgewichtige Mechanismen, oft eine HTTP-Resource API stattfindet. Die Services werden auf Geschäftsprozesse zugeschnitten und lassen sich unabhängig voneinander bereitstellen, testen und nach der Bereitstellung skalieren. Um Microservices besser beschreiben zu können, ist ein Blick auf den historischen Bedarf sinnvoll. Microservice Architekturen sind aus der Notwendigkeit entstanden, monolithische Anwendungen aufzubrechen, um die Komplexität zu vereinfachen und neue Funktionen der Anwendung schneller bereitstellen zu können. Unternehmensanwednungen bestehen für gewöhnlich aus drei Hauptbestandteilen. Einem User-Interface für den Nutzer, einer Datenbank und der serverseitigen Anwendung, welche HTTP Requests verarbeitet, Domänenlogik ausführt, Daten aus der Datenbank abruft, aktualisiert und HTML Ansichten an den Browser sendet. Die serverseitige Anwendung wird als monolith bezeichnet, wenn die Verarbeitung aller eingehenden Requests dieser Applikation obliegt. Während dies ein erfolgreicher Weg für eine Anwendung sein kann und der natürliche Weg ist, eine neue Applikation zu entwickeln, steigt mit der Größe der Anwendung auch die Komplexität und folglich die Zeit, die benötigt wird, die Anwendung zu bauen und neue Funktionen bereitzustellen. Ein weiterer Nachteil von monolithischen gegenüber Microservice Anwendungen ist die Ressourcenverwertung. Steigen die Nutzerzahlen der Applikation, müssen mehr Anwendungen bereitgestellt werden, um die Anfragen der Nutzer zu beantworten. Bei monolithischen Anwendungen wird dabei die Anzahl der serverseitigen Applikationen erhöht. Hingegen wird bei Microservice Architekturen nur die Zahl der Komponenten erhöht, die für die Verarbeitung dieser Anfragen zuständig sind.
 \parencite{Fowler2014,AWS2026}
 \subsection{Charakteristika von Microservices}
-Aus dem vorangegangenen Abschnitt ist bereits ersichtlich, dass es keine formale Definition von Microservices gibt. Eher wird beschrieben welche gemeinsamen Merkmale für Microservice Architekturen identifiziert werden können. 
+Aus dem vorangegangenen Abschnitt ist bereits ersichtlich, dass es keine formale Definition von Microservices gibt. Eher wird beschrieben welche gemeinsamen Merkmale für Microservice Architekturen identifiziert werden können. Während für Definitionen mit gemeinsamen Eigenschaften gilt, dass nicht alle Microservice Architekturen, alle Charakteristika erfüllen, ist zu erwarten, dass für die meisten Architekturen auch die viele der Eigenschaften zutreffen.
 \subsubsection{Komponentisierung durch Services}
-Als Komponente bezeichnen \textcite{Fowler2014} eine Einheit von Software, die individuell austauschbar und aktualisierbar ist. Weiter wird beschrieben, dass Microservice Architekturen Bibliotheken nutzen, die in ein Programm eingebunden werden und in-memory Funktionen Aufrufe ausführen. Hingegen sind Services out-of-process Komponenten, die mittels Mechanismen, wie Web-Service Requests oder Remote Procedure Calls, kommunizieren. Ein Hauptargument für den Vorzug von Services, vor Bibliotheken ist, dass jene unabhängig bereitgestellt werden können. Wenn die Anwendung aus mehreren Bibliotheken in einem einzelnen Prozess ausgeführt werden, führt eine Veränderung einer Komponente dazu, dass die gesamte Applikation erneut ausgerollt werden muss. Ist diese Anwendung jedoch in unterschiedliche Services aufgeteilt, so führen Veränderungen an einem einzelnen Service dazu, dass nur dieser neu ausgerollt werden muss, solange Entwickler keine Schnittstellen-Änderungen implementieren, die die Kommunikation zwischen den Services beeinflusst. 
+Als Komponente bezeichnen \textcite{Fowler2014} eine Einheit von Software, die individuell austauschbar und aktualisierbar ist. Weiter wird beschrieben, dass Microservice Architekturen Bibliotheken nutzen, die in ein Programm eingebunden werden und in-memory Funktionen Aufrufe ausführen. Hingegen sind Services out-of-process Komponenten, die mittels Mechanismen, wie Web-Service Requests oder Remote Procedure Calls, kommunizieren. Ein Hauptargument für den Vorzug von Services, vor Bibliotheken ist, dass jene unabhängig bereitgestellt werden können. Wenn die Anwendung aus mehreren Bibliotheken in einem einzelnen Prozess ausgeführt werden, führt eine Veränderung einer Komponente dazu, dass die gesamte Applikation erneut ausgerollt werden muss. Ist diese Anwendung jedoch in unterschiedliche Services aufgeteilt, so führen Veränderungen an einem einzelnen Service dazu, dass nur dieser neu ausgerollt werden muss, solange Entwickler keine Schnittstellen-Änderungen implementieren, die die Kommunikation zwischen den Services beeinflusst. Ziel einer guten Microservice Architektur ist es, durch kohärente Service-Grenzen und Evolutionsmechanismen, diese zu minimieren. 
 
+
+%Kubernetes
 \section{Kubernetes}
+
+%CI/CD
 \section{Continuous Integration \& Continuous Delivery}	
 
 % Deployment Strategien
 \chapter{Technische Strategien}
 
+%Metriken
 \chapter{Metriken}
 
+%Eigenanteil
 \chapter{Implementierung und Analyse}
 
 % Literaturverzeichnis
 \printbibliography
+
+\appendix
+\chapter{Eigenständigkeitserklärung}
+Hiermit erkläre Ich, dass die vorliegende Arbeit selbstständig und nur unter Verwendung der angegebenen Literatur und Hilfsmittel angefertigt habe. Stellen, die wörtlich oder sinngemäß aus Quellen entnommen wurden, sind als solche kenntlich gemacht. Diese Arbeit wurde in gleicher oder ähnlicher Form noch keiner anderen Prüfungsbehörde vorgelegt.
+
+\vspace{2cm}
+
+\noindent
+\makebox[6cm]{\hrulefill}
+\hfill
+\makebox[6cm]{\hrulefill}
+
+\noindent
+Ort, Datum 	\hfill Vorname Nachname
 
 \end{document}

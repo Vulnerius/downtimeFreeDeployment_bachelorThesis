@@ -1,0 +1,35 @@
+% =========================
+% Einbandseite (nur Inhalt)
+% =========================
+
+\thispagestyle{empty}
+
+\begin{tikzpicture}[remember picture,overlay]
+	
+	\coordinate (TL) at (current page.north west);
+	
+	\node[anchor=north east] at ([xshift=-22mm,yshift=-11mm]current page.north east) {%
+		\includegraphics[width=55mm]{hsmw_logo.pdf}
+	};
+	
+	\node[anchor=west] at ([xshift=35mm,yshift=-98mm]TL) {%
+		{\fontsize{30pt}{14pt}\selectfont\bfseries BACHELORARBEIT}
+	};
+	
+	\node[anchor=west,align=right, text width=98mm] at ([xshift=35mm,yshift=-160mm]TL) {
+		{\fontsize{14pt}{14pt}\selectfont
+		  Herr Paul Fuchs}	};
+	
+	\node[anchor=west,align=right,text width=98mm] at ([xshift=35mm,yshift=-200mm]TL) {%
+		{\fontsize{16pt}{24pt}\selectfont
+			Die Downtime-freie Bereitstellung von \\
+			Microservices in Kubernetes Umgebungen.}
+	};
+	
+	\node[anchor=west,align=right, text width=98mm] at ([xshift=35mm,yshift=-250mm]TL) {%
+		{\fontsize{14pt}{14pt}\selectfont 2026}
+	};
+	
+\end{tikzpicture}
+
+\cleardoublepage
