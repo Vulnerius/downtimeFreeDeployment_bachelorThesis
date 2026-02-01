@@ -155,16 +155,35 @@ Die Dezentralisierung von Datenmanagement zeigt sich auf verschiedene Weisen. Au
 Techniken der automatisierten Bereitstellung von Softwareprodukten sind gängige Praxis. Spätestens seit den DevOps Praktiken von Continuous Integration und Continuous Delivery. Die beschreiben, dass Softwareprodukte ständig weiterentwickelt und bereitgestellt werden. Dieser Ansatz wird in einem späteren Kapitel noch genauer betrachtet. Hier sei beschrieben, dass der Prozess des Bauens von Software weitgehend automatisiert abläuft. Ein einfacher Build-Prozess lässst sich mit den folgenden Schritten beschreiben. Kompilierung und Unit-Testing, Ausführen von Integrations- und Performance Tests und der anschließenden Bereitstellung für die Produktivumgebung.
 
 \subsubsection{Fehlertoleranz}
-Eine weitere Konsequenz der Nutzung von Services als Komponenten ist, dass Anwendungen
+Eine weitere Konsequenz der Nutzung von Services als Komponenten ist, dass Anwendungen so konzipiert werden müssen, dass Fehler anderer Services toleriert werden können. Jeder Service call kann aufgrund der nicht-Erreichbarkeit des "angerufenen" Services scheitern und der anfragende Service muss möglichst elegant auf den Fehler reagieren. Das ist ein klarer Nachteil gegenüber monolithischen Architekturen, da es zusätzliche Komplexität hinzuaddiert. Die Konsequenz daraus ist, dass Teams konstant evaluieren müssen, wie die Fehler der Services die Nutzererfahrung beeinflussen. Aufgrund der Fehleranfälligkeit der Services ist es wichtig schnellstmöglich Ausfälle zu erkennen und den ausgefallenen Service wiederherzustellen. Microservice Anwendungen legen hierbei großen Wert auf Echtzeitüberwachung der Services. Dabei werden sowohl architektonische Elemente, wie die Anzahl der Datenbankabfragen pro Sekunde und geschäftsrelevante Kennzahlen, wie beispielsweise die eingehenden Bestellungen pro Minute, überprüft. Diese Überwachung kann als Frühwarnsystem dienen und Entwicklungsteams veranlassen, Fehler zu erkennen und zu untersuchen. 
+
+\subsubsection{Evolutionäres Design}
+Durch das Aufbrechen einer monolithischen Anwendung in Microservices entsteht bereits ein evolutionäres Design und für die Entwickler ist die Zerlegung bereits ein Werkzeug um die Kontrolle über Änderungen an der Applikation zu haben. Dies ermöglicht weiter die Anwendung zu verändern, ohne den Entwicklungsprozess zu verlangsamen. Bei der Zerlegung eines Softwaresystems in Komponenten stellt sich unweigerlich die Frage, nach welchen Prinzipien die Applikation aufgeteilt wird. Die wichtigste Eigenschaft einer Komponente ist die unabhängige Austauschbarkeit und damit Aktualisierbarkeit. Bedeutend, dass analysiert wird, wie die Komponenten aufgeteilt werden und eben jene Komponenten dann völlig neu geschrieben werden, ohne einander zu beeinträchtigen. 
+\parencite{Fowler2014}
+
+%Docker Microservice Sub
+\subsection{Docker}
+
 
 %Kubernetes
 \section{Kubernetes}
+Kubernetes, auch bekannt als K8s, ist ein Open-Source-System zur Automatisierung von Deployment, Scaling und Management von containerisierten Applikationen. \textcite{K8sDocs} 
 
 %CI/CD
 \section{Continuous Integration \& Continuous Delivery}	
 
 % Deployment Strategien
 \chapter{Technische Strategien}
+In Kubernetes ist das Deployment ein Werkzeug mit dem Aktualisierungen für Pods und Replicasets ermöglicht werden. Das Deployment ist ein Objekt, welches die Spezifikation für die Bereitstellung der Anwendung und damit den gewünschten Bereitstellungszustand der Applikation definiert. Zur Laufzeit stellt der Deployment-Controller sicher, dass der tatsächliche Zustand, dem gewünschten Zustand entspricht. Bei der Erstellung eines Deployment-Objektes wird ein neues Replicaset Objekt erstellt, welches für die Erstellung von Pods verantwortlich ist. Wird das Deployment gelöscht, werden auch die zugehörigen Pods und das Replicaset entfernt. Folgend werden die technischen Strategien erklärt, die verwendet werden, um die durchgängige Erreichbarkeit der Services zu gewährleisten.
+
+\section{Rolling Updates}
+Das Rolling Update ist die Kubernetes native Standard Strategie, um Pods zu aktualisieren. Bei der schrittweise die Anzahl der Pods des alten Replicaset herunterskaliert werden, während die Anzahl der Pods des neuen Replicasets erhöht werden. Dabei gibt es Kubernetes-nativ zwei mögliche Anpassungen, welche die Bereitstellung beeinflussen. \textit{Max Surge} und \textit{Max Unavailable} sind diese Optionen. \\ 
+Max Surge beschreibt, wie viele Pods mehr als die Anzahl der gewünschten Pods während des Deployment zur Verfügung gestellt werden. Beispielsweise werden bei einem maxSurge-Wert von 50\% maximal 150\% der gewünschten Anzahl an Pods zur Verfügung gestellt. \\
+Max Unavailable beschreibt, wie viele Pods während der Aktualisierung nicht erreichbar sein dürfen. Wird dieser Wert also auf 50\% gesetzt, werden initial die Hälfte aller Pods heruntergefahren, während die neuen Pods bereitgestellt werden. \\
+Es kann je nur eine der beiden Optionen auf 0 gesetzt werden.
+
+\section{Blue-Green Deployment}
+Die Methode des Blue-Green Deployments 
 
 %Metriken
 \chapter{Metriken}
