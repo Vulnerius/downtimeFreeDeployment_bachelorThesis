@@ -178,12 +178,15 @@ In Kubernetes ist das Deployment ein Werkzeug mit dem Aktualisierungen für Pods
 
 \section{Rolling Updates}
 Das Rolling Update ist die Kubernetes native Standard Strategie, um Pods zu aktualisieren. Bei der schrittweise die Anzahl der Pods des alten Replicaset herunterskaliert werden, während die Anzahl der Pods des neuen Replicasets erhöht werden. Dabei gibt es Kubernetes-nativ zwei mögliche Anpassungen, welche die Bereitstellung beeinflussen. \textit{Max Surge} und \textit{Max Unavailable} sind diese Optionen. \\ 
-Max Surge beschreibt, wie viele Pods mehr als die Anzahl der gewünschten Pods während des Deployment zur Verfügung gestellt werden. Beispielsweise werden bei einem maxSurge-Wert von 50\% maximal 150\% der gewünschten Anzahl an Pods zur Verfügung gestellt. \\
-Max Unavailable beschreibt, wie viele Pods während der Aktualisierung nicht erreichbar sein dürfen. Wird dieser Wert also auf 50\% gesetzt, werden initial die Hälfte aller Pods heruntergefahren, während die neuen Pods bereitgestellt werden. \\
-Es kann je nur eine der beiden Optionen auf 0 gesetzt werden.
+Max Surge beschreibt, wie viele Pods mehr als die Anzahl der gewünschten Pods während des Deployment zur Verfügung gestellt werden. Beispielsweise werden bei einem maxSurge-Wert von 50\% maximal 150\% der gewünschten Anzahl an Pods zur Verfügung gestellt. Max Unavailable beschreibt, wie viele Pods während der Aktualisierung nicht erreichbar sein dürfen. Wird dieser Wert also auf 50\% gesetzt, werden initial die Hälfte aller Pods heruntergefahren, während die neuen Pods bereitgestellt werden. Es kann je nur eine der beiden Optionen auf 0 gesetzt werden. 
+Die Vorteile dieser Strategie sind, dass kein zusätzlicher Konfigurationsaufwand bei der Implementierung dieser Strategie entsteht. Weiter ist der Verbrauch zusätzlicher Ressourcen basierend auf der \textit{MaxSurge} überschaubar definiert. Nachteil dieser Strategie ist die Fehleranfälligkeit. Sollte die neue Version Fehler verursachen, die nicht getestet werden können, so werden diese erst in der Produktivumgebung erkannt und die Nutzererfahrung wird beeinträchtigt. Während des Deployments ist ein erhöhtes Risiko für Latenz und Error-Raten gegeben, da die Pods simultan hoch- und heruntergefahren werden. \parencite{zeroDowntimeRakshitBanerjee, K8sDocs, AgrawalK8sFunda2023}
 
 \section{Blue-Green Deployment}
-Die Methode des Blue-Green Deployments 
+Die Methode des Blue-Green Deployments ist eine downtime freie Strategie zur Bereitstellung von Microservices, die beschreibt, dass für die Applikation zwei, bestenfalls identische, Produktionsumgebungen zur Verfügung stehen. Eine Umgebung wird als blau, die andere als grün bezeichnet und zu jeder Zeit ist eine der beiden Umgebungen aktiv. Angenommen die blaue Umgebung ist aktuell aktiv und es steht das Ausrollen einer neuen Version bevor. Dann wird die grüne Umgebung mit der neuen Version konfiguriert und letzte Tests werden in dieser Umgebung ausgeführt. Sobald die Umgebung zufriedenstellend getestet wurde, wird der Router angewiesen ankommende Nutzeranfragen an die grüne Produktionsumgebung zu leiten und die blaue Umgebung ist untätig. Diese Strategie hat den Vorteil, dass ein Rollback so schnell ausgeführt wird, wie das Ausrollen der neuen Version stattfindet. Indem der Router angewiesen wird, die Anfragen wieder auf die blaue Umgebung zu leiten. Ein Nachteil dieser Strategie ist, dass zu jeder Zeit beide Umgebungen bereitgestellt sein müssen, was prinzipiell zu einer Ressourcenverdopplung führt.
+\parencite{Fowler2015, AgrawalK8sFunda2023, zeroDowntimeRakshitBanerjee}
+
+\section{Canary Deployment}
+
 
 %Metriken
 \chapter{Metriken}
