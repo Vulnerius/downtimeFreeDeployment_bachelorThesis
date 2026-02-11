@@ -97,7 +97,7 @@
 	\end{titlepage}
 
 \cleardoublepage
-\subsubsection{Bibliografische Angaben}
+\subsubsection*{Bibliografische Angaben}
 Fuchs, Paul: Die Downtime-freie Bereitstellung von Microservices in Kubernetes Umgebungen. TODO:  5 Seiten, 14 Abbildungen, 1 Anlage mit Quelltexten, Hochschule Mittweida (FH), Fachbereich Angewandte Computer- und Biowissenschaften \\ \\
 Bachelorarbeit 2026
 \vfill 
@@ -186,10 +186,54 @@ Die Methode des Blue-Green Deployments ist eine downtime freie Strategie zur Ber
 \parencite{Fowler2015, AgrawalK8sFunda2023, zeroDowntimeRakshitBanerjee}
 
 \section{Canary Deployment}
+Die Canary Deployment Strategie basiert auf der Blue-Green Deployment Strategie mit dem Unterschied, dass nicht die gesamte Umgebung dupliziert wird und der Datenverkehr nicht vollständig auf die eine oder die andere Umgebung geleitet wird. Beim Canary Deployment wird die neue Version parallel zur live Version ausgerollt und nur ein Teil der Nutzeranfragen werden auf die neue Version umgeleitet. Im Laufe des Deployment werden stetig mehr Nutzer auf die neue Version geleitet, um die neue Version mit produktivem Datenverkehr zu testen. Ist das Testen erfolgreich, wird die Anzahl der Applikationen der neuen Version erhöht und die Anzahl der Anwendungen der bisherigen Version werden abgeschaltet. Der Deployment Prozess dauert so lange an, bis sich entweder gegen die neue Version entschieden wird oder alle Nutzer auf die neue Version umgeleitet werden und somit die alten Versionen der Anwendung durch die neuen ersetzt wurden. Der Vorteil dieser Strategie ist, dass Ressourcen während des Deployments optimaler genutzt werden als beim Blue-Green Deployment und das die neue Version bereits vor vollständigem Ausrollen mit produktivem Datenverkehr getestet sind. Ein Nachteil dieser Strategie ist, dass derselbe Nutzer bei der ersten Anfrage auf die neue Version geleitet wird und bei der zweiten Anfrage auf die alte Version geleitet wird - und umgekehrt. Das muss, beispielsweise durch Session Affinität, verhindert werden.
+\parencite{Sato2014, AgrawalK8sFunda2023}
 
 
 %Metriken
-\chapter{Metriken}
+\chapter{Monitoring und Observability}
+
+\section{Monitoring}
+Der Grund eine Softwareanwendung zu überwachen ist ein robustes und resilientes Produkt zu betreiben. Dabei wird die Software von der Leistung über die Fehleranalyse bis hin zur Gesamtbewertung der Anwendung auf unterschiedlichen Ebenen geprüft. Dies hilft dabei Probleme zu identifizieren und diese schnellstmöglich zu lösen. Weiter wird die Ressourcenverwertung optimiert und nicht zuletzt wird über den Prozess hinweg eine flexible und resiliente Anwendung gebaut. 
+
+\subsection{Leistungsanalyse}
+Die Analyse der Leistung der Applikation beschreibt die kontinuierliche Überwachung verschiedener Metriken, wie die Antwortzeit oder die Service-Erreichbarkeit. Dabei wird ersichtlich, wie ein Microservice auf Anfragen reagiert. Die Überwachung der Antwortzeit gibt einen Einblick darin, wie lange ein Microservice benötigt, um eine Anfrage zu bearbeiten und das Ergebnis darzustellen. Somit können Unternehmen beobachten, welche Services langsam arbeiten und eine Optimierung anstreben. Die Überwachung der Service-Erreichbarkeit stellt sicher, dass Services erreichbar sind und korrelieren mit der Nutzererfahrung, denn ein Service mit sehr hoher Erreichbarkeit zeigt dem Nutzer, dass er sich darauf verlassen kann, den Service bei Bedarf in Anspruch zu nehmen. Die Leistungsanalyse ermöglicht es Unternehmen zu verstehen, wie sich Änderungen auf die Leistung des Softwaresystems auswirken. 
+
+\subsection{Ursachenanalyse von Fehlern}
+Die Ursachenanalyse von Fehler bindet die tiefe Analyse von Fehlern, Ausnahmen und Events ein, die zu einem speziellen Fehler geführt haben. Die Hauptaufgabe dabei ist die Erkennung des zugrundeliegenden Problems, damit der Fehler nicht erneut ausgelöst wird. Dabei werden Logs verwendet, diese geben Aufschluss darüber durch welche Eventkette der Fehler hervorgerufen wurde und lassen starke Rückschlüsse auf die Ursache des Fehlers zu. Eine Technik der Darstellung dieser Eventketten ist \textit{distributed tracing}. Nach der Identifizierung der Ursachen des Fehlers können Prioritäten dabei helfen, die kritischsten Fehler zuerst zu beheben.
+Das Ziel der Ursachenanalyse von Fehlern ist das Vorbeugen von wiederholtem fehlerhaften Verhalten der Applikation.
+
+\subsection{Anomalienerkennung}
+Die Anomalienerkennung beschreibt den Prozess des Findens von untypischem Verhalten des Systems oder von Nutzern und damit dem Identifizieren von Problemen der Anwendung. Diese Probleme beinhalten Sicherheitslücken oder Systemstörungen. Ansätze zur Anomalienerkennung verwenden maschinelles Lernen, statistische Methoden und grenzwert-basierte Alarmsysteme. Eine Stärke der Anomalienerkennung ist die frühe Erkennung potenzieller Angriffe auf das System.
+
+\subsection{Anwendungsstatus}
+Die Analyse des Zustands der Anwendung beginnt mit der Erreichbarkeit und endet mit der Ressourcenverwendung und der Überprüfung von Abhängigkeiten. Dies stellt einen positiven Status aller Microservices im System sicher und umfasst periodische Abfragen zur Funktionalität des Services. Die Überprüfung richtet sich dabei an Datenbanken, API's und Drittanbieter-Services. Aus der Analyse dieser Daten können Engpässe von Ressourcen festgestellt werden. Das Ziel der Überwachung des Anwendungsstatusses ist, die Sicherstellung der Erreichbarkeit des Softwaresystems. 
+
+\section{Parameter zur Überwachung}
+Die Überwachungsparameter Logs, Metriken und Traces sind essentiell für das Verständnis der Leistung, des Verhaltens und des Zustands verteilter Systeme. 
+
+\subsection{Logs}
+Logs beinhalten Textdateien, die durch Microservices generiert wurden. Sie beschreiben verschiedene Events, Error Nachrichten, Transaktionen und Veränderungen des Systemzustands. Die Analyse der Lognachrichten kann genau zeigen, wann der Fehler aufgetreten ist und welche Events zu dem Fehler geführt haben. Nachdem der Fehler aufgetreten ist, sorgen die Lognachrichten dafür, dass die Ursache für den Fehler gefunden werden kann, was die Systemzuverlässigkeit verbessert.
+
+\subsection{Metriken}
+Metriken geben einen Einblick in die Leistung und Ressourcenverwertung von Microservices. Diese umfassen, den CPU Verbrauch, Arbeitsspeicher-Nutzung, Netzwerk-Durchsatz oder traditionelle Applikationen-Layer Metriken, wie aktive Nutzer oder Transaktionen pro Sekunde. Die Überwachung dieser Metriken erlauben es Organisationen den Zustand des Systems, Leistungstrends und Anomalien zu erfassen. Diese Metriken werden kontinuierlich abgefragt und können zusammengeführt durch Grafen und Dashboards visualisiert werden, was eine proaktive Performance Analyse ermöglicht. 
+
+\subsection{Traces}
+Traces erfassen detaillierte Informationen zu jeder Anfrage, die durch das System verarbeitet wird und registriert dabei jeden Microservice der an der Verarbeitung beteiligt ist. Dies soll eine fein-granulare Ansicht der Anfragenverarbeitung ermöglichen, dabei beinhalten sie Informationen zur Latenzzeit und den Abhängigkeiten zwischen den Microservices. Mit diesem Ansatz können Unternehmen die Traces analysieren und herausfinden wo Microservices ihre Leistungen verbessern können und Verarbeitungspfade verbessert werden, um die Antwortfähigkeit der Microservices zu optimieren. Traces werden besonders wirksam in den verteilten Systemenm die heute betrieben werden, Das Wissen über die Interaktionen der einzelnen Komponenten ermöglicht die Analyse der Ursachen von aufgetrenen Problemen.
+
+\section{Monitoring Ebenen}
+Um detaillierte Einblicke in das Verhalten und die Leistung des Softwaresystems zu erlangen, ist es notwendig mehrere Ebenen zu überwachen. Diese werden folgend beschrieben. 
+
+\subsection{Netzwerk Ebene}
+Die Netzwerk Ebene überwacht die Interaktionen der Services die an der Beantwortung einer Anfrage beteiligt sind und wie Daten von einem Microservice zum nächsten gesendet. Damit können potenzielle Fehlerpunkte identifiziert werden, die dazu führen, dass die Kummonikationskette bricht. Weiter kann dadurch analysiert werden, welche Datenmengen zwischen Services versendet werden. Die Latenz beschreibt, wie lange Daten brauchen um zwischen den Services ausgetauscht zu werden. Um Netzwerk Probleme, wie Package Loss oder fehlerhafte Verbindungen, zu analysieren können die überwachten Error Raten verwendet werden. Die Überwachung des Netzwerk Durchsatzes ist eine kritische Ressource um die Leistung des gesamten Systems zu bewerten. 
+
+\subsection{System Ebene}
+Das Monitoring auf System Ebene fokussiert sich auch die zu grundeliegende Infrastruktur, ob physischer Server oder virtuelle Maschine. Die Leistung der Microservices hängt maßgeblich von diesen Komponenten ab. Die CPU Auslastung liefert Einblicke darüber, wie stark die Rechenleistung genutzt wird und zeigt mögliche Ressourcenüberlastungen an. Die Überwachung von Input/Output zeigt auf welcher Rate Daten vom Datenträger gelesen und geschrieben werden, was eine direkte Auswirkung auf Microservices hat, die auf gespeicherten Daten beruhen. Die Überwachung des Arbeitsspeichers ist ebenfalls kritisch für die Leistung des Softwaresystems, da eine nicht-ausreichende Arbeitsspeicherkapazitäten nicht selten zum Ausfall des Systems führen. Das kontinuierliche Monitoring dieser Metriken auf System Ebene ist notwendig um die Leistungsfähigkeit des Softwaresystems sicherzustellen und Probleme frühzeitig zu erkennen und eine Lösung dieser zu finden.
+
+\subsection{Service Ebene}
+Auf Service Ebene werden Applikations-spezifische Metriken überwacht, die essentiell für die Leistung und das Verhalten jedes Microservices sind. Alle im System laufenden Services werden überwacht im Hinblick auf die Fehlerraten, sodass auftretende Defekte schnell erkannt und behoben werden können. Weiter ist die Überwachung der Antwortzeit ausschlaggebend, da sie zeigen, mit welcher Geschwindigkeit Anfragen verarbeitet werden und somit direkt mit der Nutzererfahrung korrelieren. Folgend ist das Monitoring von Transaktionen wichtig um zu verstehen, wie hoch die Last jedes Microservices ist und demnach dessen Fähigkeit bei mehr Anfragen weitere Last zu bearbeiten. Mit der Überwachung dieser Metriken wird die Verlässlichkeit des Softwaresystems sichergestellt. 
+
+\parencite{FaseehaMonitoring}
 
 %Eigenanteil
 \chapter{Implementierung und Analyse}
