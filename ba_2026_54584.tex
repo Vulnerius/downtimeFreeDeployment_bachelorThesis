@@ -167,10 +167,36 @@ Durch das Aufbrechen einer monolithischen Anwendung in Microservices entsteht be
 
 %Kubernetes
 \section{Kubernetes}
-Kubernetes, auch bekannt als K8s, ist ein Open-Source-System zur Automatisierung von Deployment, Scaling und Management von containerisierten Applikationen. \textcite{K8sDocs} 
+Kubernetes, auch bekannt als K8s, ist ein Open-Source-System zur Automatisierung von Deployment, Skalierung und Management von containerisierten Applikationen. \textcite{K8sDocs} 
 
 %CI/CD
-\section{Continuous Integration \& Continuous Delivery}	
+\section{Continuous Integration, Continuous Delivery, Continuous Deployment und Progressive Delivery}	
+Continuous Integration, Continuous Delivery und Continuous Deployment sind Devops Praktiken zur Sicherstellung der kontinuierlichen Einbindung und Auslieferung von Softwarefeatures und Fehlerbehebungen. \parencite{Devops2026A} Continuous Integration beschreibt den Prozess der automatisierten Integration von Codeänderungen in das Softwaresystem. Zur Validierung der vorgenommenen Änderungen wird der Code gebaut und anschließend getestet. So kann frühzeitig auf Fehler und Integrationsprobleme reagiert werden. Continuous Integration legt seinen Fokus auf das automatisierte Testen von Codeänderungen. Continuous Delivery erweitert Continuous Integration um die Bereitstellung der neugebauten Softwareversion in einer Testumgebung, während eine Auslieferung in die Produktivumgebung noch manuell gestartet wird. Continuous Deployment ergänzt die Delivery widerum um die automatisierte Bereitstellung in der Produktivumgebung. Progressive Delivery erweitert das Continuous Deployment insofern, dass die neue Softwareversion zunächst nur einem Teil der Nutzer zugänglich gemacht und einer kontinuierlichen Erhöhung des Datenverkehrs zur neuen Version solange die Software korrekt funktioniert. Beim Fehlschlagen wird dann automatisch auf die letzte Version zurückgerollt. 
+\parencite{CICDS2026, Devops2026A, ArgoPD}
+
+\subsection{Deployment}
+Als Deployment definiere Ich für diese Arbeit den Prozess des Bereitstellens eines bereits gebauten Containerimages in verschiedene Entwicklungsumgebungen, bspw. Test oder Produktiv. 
+
+\subsection{Release}
+Als Release definiere Ich in dieser Arbeit die Veröffentlichung einer Softwareversion für Endnutzer.
+\\
+Der Unterschied von Deployment und Release ist, dass eine releaste Softwareversion Anfragen von Nutzern bearbeitet, während das Deployment den Prozess bis zum "angesprochen" werden darstellt.
+
+%Service Mesh
+\section{Service Mesh}
+Das Service Mesh ist eine dedizierte Infrastruktur Ebene, die die Kommunikation zwischen Services verwaltet. Sie besteht aus einer Komposition leichtgewichtiger Netzwerkproxies, sogenannter Sidecars. Diese sind für die zuverlässige Zustellung von Anfragen in einer komplexen Topologie von Microservices zuständig. 
+
+\subsection{Zentrale Aufgaben}
+Um in der Microservice Architektur verwendbar zu sein werden vom Service spezifische Aufgaben verlangt. Das Service Mesh hilft bei der Bewältigung der folgenden Aufgabengebiete. Service Erreichbarkeit, Lastverteilung, Fehlertoleranz, Überwachung des Datenverkehrs, einer Bruchstelle für wiederkehrende Verbindungsprobleme und der Authentifizierungs- und Zugansgskontrolle. 
+
+\subsection{Sidecar und Sidecarless Architektur}
+Um die Kommunikation zwischen den Services sicherzustellen verwenden Service Meshes Envoy Proxies. Beim Sidecar Pattern werden der Proxy Container in jedem Pod als zusätzlicher Prozess gestartet. Somit wird die Kommunikation in den Sidecar Container ausgelagert und eine klare Separation der Verantwortlichkeiten geschaffen. Nachteil dieses Ansatzes ist der Ressourcenoverhead, um den Proxy neben der Applikation zu betreiben. Der Sidecarless Ansatz implementiert einen Envoy Proxy pro Kubernetes Worker Node.
+\parencite{Chawla2024, Hasanth}
+
+%Datenbanken
+\section{Persistenz in verteilten Systemen}
+
+
 
 % Deployment Strategien
 \chapter{Technische Strategien}
@@ -190,8 +216,8 @@ Die Canary Deployment Strategie basiert auf der Blue-Green Deployment Strategie 
 \parencite{Sato2014, AgrawalK8sFunda2023}
 
 
-%Metriken
-\chapter{Monitoring und Observability}
+%Monitoring, Observability, Erfolg
+\chapter{Monitoring, Observability und Erfolg}
 
 \section{Monitoring}
 Der Grund eine Softwareanwendung zu überwachen ist ein robustes und resilientes Produkt zu betreiben. Dabei wird die Software von der Leistung über die Fehleranalyse bis hin zur Gesamtbewertung der Anwendung auf unterschiedlichen Ebenen geprüft. Dies hilft dabei Probleme zu identifizieren und diese schnellstmöglich zu lösen. Weiter wird die Ressourcenverwertung optimiert und nicht zuletzt wird über den Prozess hinweg eine flexible und resiliente Anwendung gebaut. 
@@ -235,6 +261,12 @@ Auf Service Ebene werden Applikations-spezifische Metriken überwacht, die essen
 
 \parencite{FaseehaMonitoring}
 
+\section{DORA Metriken}
+Im Zuge der Arbeit am \textit{State of DevOps Report} entwickelte ein Google Cloud Team einen standardisierten Bewertungsmaßstab für den Einfluss der Performance von Softwarebereitstellung auf die Unternehmensleistung. Dabei wurde anhand der Lean Methode der Einfluss technischer Praktiken auf die Kultur und den Effekt der Kultur auf die Performance der Bereitstellung und der Unternehmensleistung untersucht. 
+
+\subsection{Erfolgsmessung der Softwarebereitstellung}
+\cite{2019forsgrenDORA} Sie beschreiben vier Messgrößen der Bereitstellungsperformance: Durchlaufzeit der Bereitstellung, Deployment Frequenz, Wiederherstellungszeit der Services und die Ausfallrate bei Änderungen. Die Durchlaufzeit wird von der Zeit vom Moment der Anfrage eines Features bis zur produktiven Bereitstellung definiert. Dabei werden zwei Zeitabschnitte gesetzt. Die Zeit des Entwurfs und der Validierung des Produkts und der Zeit der Auslieferung an den Kunden. Kürzere Durchlaufzeiten bedeuten schnelleres Feedback und damit schnellere Rückmeldung zu möglichen Anpassungen. Die Deployment Frequenz misst die Häufigkeit der Bereitstellung angepasster Software in die Produktionsumgebung. Um Geschwindigkeit und Stabilität des Systems zu überprüfen wird traditionell die Zuverlässigkeit eines Systems darüber gemessen, wie lang die Zeit zwischen den Ausfällen ist. Bei konstanten Deployment-Zirkeln sind Ausfälle jedoch unvermeidbar. Demnach wird bei der Bewertung die Zeit gemessen, die es braucht Services wiederherzustellen. 
+
 %Eigenanteil
 \chapter{Implementierung und Analyse}
 
@@ -253,6 +285,6 @@ Hiermit erkläre Ich, dass die vorliegende Arbeit selbstständig und nur unter V
 \makebox[6cm]{\hrulefill}
 
 \noindent
-Ort, Datum 	\hfill Vorname Nachname
+Borna, den 16.03.2026 	\hfill Paul Fuchs
 
 \end{document}
