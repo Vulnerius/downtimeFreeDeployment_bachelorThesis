@@ -163,7 +163,10 @@ Durch das Aufbrechen einer monolithischen Anwendung in Microservices entsteht be
 
 %Docker Microservice Sub
 \subsection{Docker}
-
+Docker ist der Industriestandard als Anwendungscontainerisierungsplattform. \\
+"Container sind leichtgewichtige, eigenständige, ausführbare Softwarepakete, die alles beinhaltet um die Applikation auszuführen. Code, Laufzeitumgebung, Bibliotheken, Umgebungsvariablen und Konfigurationsdateien."
+\cite{Weiss2024}  
+Docker stellt zudem eine Plattform zur Speicherung von gebauten Containern. Hier werden spezifische Images hoch- und heruntergeladen. 
 
 %Kubernetes
 \section{Kubernetes}
@@ -195,8 +198,12 @@ Um die Kommunikation zwischen den Services sicherzustellen verwenden Service Mes
 
 %Datenbanken
 \section{Persistenz in verteilten Systemen}
+Der sich rapide verändernden Art der Bereitstellung von Software muss sich auch die Datenbankstruktur anpassen lassen. Angenommen ein Parameter wird im Code umbenannt, im Datenbankschema jedoch nicht. Dann entsteht Downtime während des Deployments, da der neu deployte Service auf die Datenbank zugreift und eine fehlerhafte Antwort enthält. Genauso andersherum, ändert sich mit dem Release das Datenbankschema kann die aktuell stabile Version Downtime verursachen, da die alte Softwareversion noch mit dem alten Parameternamen arbeitet und fehlerhafte Antworten von der Datenbank erhält.
 
-
+\subsection{Expand Migrate Contract - Parallel Change}
+Um die rückwärts-kompatibilität von Software und Datenbankschemata zu gewährleisten, beschrieb Sato 2014 das Parallel Change bzw. Expand-Migrate-Contract Pattern. Während der Expand Phase wird die Schnittstelle so erweitert, dass sowohl die alte, als auch die neue Version unterstützt wird. Exisiterende Services greifen weiter auf die alte Version der Schnittstelle zu. Die Migrationsphase bezeichnet die Zeit des Deployments, während der alle Softwareversionen das neue Datenbankschema verwenden, bei Canary z.B. der Erfolg des Releases. Mit Abschluss des Deployments startet die Contract-Phase, bei der das alte Datenbankschema entfernt wird, da alle Schnittstellen das neue Datenbankschema verwenden. \\
+Für den Anwendungsfall des Deployments wird weiter beschrieben, dass die Anwendung dieses Pattern zur Verringerung des Änderungsrisikos führt. Zusätzlich kann es dafür verwendet werden, die Deployment Orchestration verschiedener Services aufgrund unterschiedlicher Abhängigkeiten dazwischen zu entfernen.
+\parencite{SadalageDB, Sato2014DB}
 
 % Deployment Strategien
 \chapter{Technische Strategien}
