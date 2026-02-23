@@ -170,7 +170,51 @@ Docker stellt zudem eine Plattform zur Speicherung von gebauten Containern. Hier
 
 %Kubernetes
 \section{Kubernetes}
-Kubernetes, auch bekannt als K8s, ist ein Open-Source-System zur Automatisierung von Deployment, Skalierung und Management von containerisierten Applikationen. \textcite{K8sDocs} 
+Kubernetes, auch bekannt als K8s, ist ein Open-Source-System zur Automatisierung von Deployment, Skalierung und Management von containerisierten Applikationen. \textcite{K8sDocs} \\
+Kubernetes wurde 2014 von Google als Open-Source Projekt zur Verfügung gestellt und kombiniert mehr als 15 Jahre Erfahrung im Produktionsbetrieb mit Ideen und Best-Practices aus der Community. Um Anwendungen produktiv zu betreiben werden sie verpackt, dafür lassen sich Container verwenden. In einer Produktivumgebung müssen die Container, die die Anwendung betreiben, verwaltet werden und sicherstellen, dass diese keine Downtime verursachen. Hier kommt Kubernetes ins Spiel. Kubernetes ist ein Framework das die folgenden Funktionen bereitstellt. Service Erreichbarkeit und Lastverteilung, Speicherverwaltung, automatisierte Updates für Softwareversionen, sowie Rückabwicklung der Versionen. Weiter stellt es Ressourcenbeschränkungen, Selbstheilung von Services, Passwort- und Konfigurationsmanagement, automatisierte Service-Skalierungen und die Allokation von IP-Adressen zur Verfügung.
+\parencite{K8sConceptsOverview}
+
+\subsection{Kubernetes Architektur}
+In diesem Abschnitt werden die architektonischen Konzepte beschrieben auf denen Kubernetes aufbaut. Ein Kubernetes Cluster besteht aus einem Control-Plane und einer Anzahl an Arbeitermaschinen, sogenannten Nodes, die containerisierte Anwendungen betreiben. Auf den Worker Nodes laufen die Applikationen, während das Control-Plane die Verwaltung der Worker Nodes und der Pods im Cluster übernimmt. 
+TODO: https://kubernetes.io/images/docs/kubernetes-cluster-architecture.svg 
+\parencite{K8sClusterArchitecture}
+
+\subsection{Kubernetes Komponenten}
+\subsubsection{Control Plane Komponenten}
+Die Control Plane Komponenten treffen globale Entscheidungen, die das gesamte Cluster betreffen. Für gewöhnlich laufen alle Komponenten der Control Plane auf derselben Maschine, während Container des Nutzers nicht auf dieser Maschine laufen, sondern auf anderen, dieser unterschiedlichen Maschinen. \\ Der \textit{kube-apiserver} ist die Control Plane Komponente, die die Kubernetes API erreichbar macht. Der API Server ist das Frontend für die Kubernetes Control Plane. \textit{Etcd} ist der konsistente und hochverfügbare Schlüssel-Wert Speicher für alle Kubernetes Cluster Ressourcen. Der \textit{kube-scheduler} ist verantwortlich für die Erstellung und Zuweisung neuer Pods zu Nodes. Der \textit{kube-controller-manager}  betreibt alle Controller Prozesse im Cluster, bspw. Node, Job oder ServiceAccount Controller. 
+
+\subsubsection{Node Komponenten}
+Um die Verwaltung der laufenden Pods sicherstellen zu können und die Kubernetes Laufzeit bereitzustellen, werden die folgenden Komponenten auf jeder Worker Node ausgeführt. Das \textit{kubelet}, welches sicherstellt, dass die Container in einem Pod ausgeführt werden, die \textit{Container Laufzeitumgebung} die sicherstellt, dass die Container auch ausgeführt werden können. Optional kann der \textit{kube-proxy} ausgeführt werden, der Netzwerk Regeln im Cluster verwaltet und die Netzwerkkommunikation sicherstellt.
+\parencite{K8sComponents, K8sClusterArchitecture}
+
+\subsubsection{Arbeitslast Komponenten}
+Die kleinste bereitstellbare Rechenkomponente eines Kubernetes Clusters ist ein \textit{Pod}. Pods bestehen aus einem oder mehreren Containern und werden dazu verwendet eine Instanz einer Anwendung zu betreiben. Ein Kubernetes \textit{Deployment} verwaltet eine Anzahl von Pods. Dabei wird ein gewünschter Status beschrieben, der vom Deployment Controller sichergestellt wird. Ein \textit{ReplicaSet} wird verwendet um die gewünschte Anzahl von Pods zu jeder Zeit sicherzustellen.
+\parencite{K8sWorkloads}
+
+\subsection{Konfiguration}
+\subsubsection{ConfigMaps}
+Eine \textit{ConfigMap} ist ein Objekt, welches Schlüssel-Wert Paare speichert. Diese können als Umgebungsvariablen oder Kommandozeilenargumente gelesen werden. 
+\cite{K8sConfigMaps}
+
+\subsubsection{Secrets}
+\textit{Secrets} werden verwendet, um sensible Daten oder Passwörter zu speichern und für Pods verwendbar zu machen. \cite{K8sSecrets}
+
+\subsubsection{Liveness, Readiness, Startup Probes}
+Die \textit{Liveness Probe} bestimmt, wann ein Pod neu gestartet werden muss. Bei wiederholtem nicht-bestehen der Liveness Probe startet kubelet den Pod neu. \\
+Die \textit{Readiness Probe} bestimmt, wann ein Pod bereit ist, Anfragen zu bearbeiten. Dies wird bei langsamen Starts von Anwendungen verwendet oder wenn eine Abhängigkeit zu bspw. einer Datenbank besteht. \\
+\textit{Startup Probes} werden verwendet, um sicherzustellen, dass eine Anwendung innerhalb eines Pods gestartet ist. Ist diese Probe konfiguriert, werden Liveness und Readiness Proben erst gestartet, nachdem die Startup Probe erfolgreich war.
+
+\subsubsection{Ressourcenmanagement}
+Um die Rechenleistung und den Speicherbedarf von Pods zu begrenzen, können in Kubernetes Anforderungen und feste Limits gesetzt werden. Diese werden dann pro Pod vom kube-scheduler verwendet, um neue Pods auf die entsprechenden Nodes zu platzieren um der Konfiguration gerecht zu werden. \cite{K8sRessource}
+
+\subsection{Netzwerke und Services}
+\subsubsection{Service}
+Ein Service ist eine Abstraktion der laufenden Anwendung und wird als Kommunikationspunkt von Endpunkten verwendet, sodass unter einem Endpunkt mehrere Pods erreicht werden können.
+
+\subsubsection{Gateway API}
+Die Gateway API wird verwendet um die Kommunikation zwischen Services und von Services nach außerhalb des Clusters zu konfigurieren.
+
+\parencite{K8sServices}
 
 %CI/CD
 \section{Continuous Integration, Continuous Delivery, Continuous Deployment und Progressive Delivery}	
@@ -275,7 +319,11 @@ Im Zuge der Arbeit am \textit{State of DevOps Report} entwickelte ein Google Clo
 \cite{2019forsgrenDORA} Sie beschreiben vier Messgrößen der Bereitstellungsperformance: Durchlaufzeit der Bereitstellung, Deployment Frequenz, Wiederherstellungszeit der Services und die Ausfallrate bei Änderungen. Die Durchlaufzeit wird von der Zeit vom Moment der Anfrage eines Features bis zur produktiven Bereitstellung definiert. Dabei werden zwei Zeitabschnitte gesetzt. Die Zeit des Entwurfs und der Validierung des Produkts und der Zeit der Auslieferung an den Kunden. Kürzere Durchlaufzeiten bedeuten schnelleres Feedback und damit schnellere Rückmeldung zu möglichen Anpassungen. Die Deployment Frequenz misst die Häufigkeit der Bereitstellung angepasster Software in die Produktionsumgebung. Um Geschwindigkeit und Stabilität des Systems zu überprüfen wird traditionell die Zuverlässigkeit eines Systems darüber gemessen, wie lang die Zeit zwischen den Ausfällen ist. Bei konstanten Deployment-Zirkeln sind Ausfälle jedoch unvermeidbar. Demnach wird bei der Bewertung die Zeit gemessen, die es braucht Services wiederherzustellen. 
 
 %Eigenanteil
-\chapter{Implementierung und Analyse}
+\chapter{Konzeption, Implementierung und Analyse}
+
+\section{Konzeption}
+Konzipiert wird eine E-Commerce Applikation, die einen Shop und dazugehörige Kauftransaktionen. Es ergibt sich je ein Microservice für den Shop und für die Transaktionen. Je Microservice wird zudem eine Datenbank aufgesetzt. Für den Shop eine nicht-relationale DB und für die Transaktionen eine relationale DB. 
+Mit der Deprecation von Ingress-Nginx stellt sich für viele Unternehmen jetzt die Frage, was die Kommunikation zwischen Services ersetzt. Kubernetes nativ bietet die Gateway API einige der Funktionen. Inwiefern jedoch ein Service Mesh nötig ist, um weitere downtime-freie Deployments sicherzustellen, soll im folgenden Abschnitt erörtert werden. 
 
 % Literaturverzeichnis
 \printbibliography
@@ -287,7 +335,7 @@ Hiermit erkläre Ich, dass die vorliegende Arbeit selbstständig und nur unter V
 \vspace{2cm}
 
 \noindent
-\makebox[6cm]{\hrulefill}
+%\makebox[6cm]{\hrulefill}
 \hfill
 \makebox[6cm]{\hrulefill}
 
