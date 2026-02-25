@@ -213,7 +213,6 @@ Ein Service ist eine Abstraktion der laufenden Anwendung und wird als Kommunikat
 
 \subsubsection{Gateway API}
 Die Gateway API wird verwendet um die Kommunikation zwischen Services und von Services nach außerhalb des Clusters zu konfigurieren.
-
 \parencite{K8sServices}
 
 %CI/CD
@@ -322,8 +321,49 @@ Im Zuge der Arbeit am \textit{State of DevOps Report} entwickelte ein Google Clo
 \chapter{Konzeption, Implementierung und Analyse}
 
 \section{Konzeption}
-Konzipiert wird eine E-Commerce Applikation, die einen Shop und dazugehörige Kauftransaktionen. Es ergibt sich je ein Microservice für den Shop und für die Transaktionen. Je Microservice wird zudem eine Datenbank aufgesetzt. Für den Shop eine nicht-relationale DB und für die Transaktionen eine relationale DB. 
-Mit der Deprecation von Ingress-Nginx stellt sich für viele Unternehmen jetzt die Frage, was die Kommunikation zwischen Services ersetzt. Kubernetes nativ bietet die Gateway API einige der Funktionen. Inwiefern jedoch ein Service Mesh nötig ist, um weitere downtime-freie Deployments sicherzustellen, soll im folgenden Abschnitt erörtert werden. 
+Konzipiert wird eine E-Commerce Applikation, die einen Shop und dazugehörige Kauftransaktionen implementiert. Es ergibt sich je ein Microservice für den Shop und für die Transaktionen. Je Microservice wird zudem eine Datenbank aufgesetzt. Für den Shop eine nicht-relationale DB und für die Transaktionen eine relationale DB.  Mit der Deprecation von Ingress-Nginx stellt sich für viele Unternehmen jetzt die Frage, was die Kommunikation zwischen Services ersetzt. Kubernetes nativ bietet die Gateway API einige der Funktionen. Inwiefern jedoch ein Service Mesh nötig ist, um weiterhin downtime-freie Deployments sicherzustellen, soll im folgenden Abschnitt erörtert werden. Doch zunächst zum Aufbau. Für das Kubernetes Cluster stehen zur Auswahl: K3s oder kubeadm als zugrundeliegende Technologien. Während kubeadm von der Kubernetes Dokumentation ausgeschrieben wird, entscheide ich mich für k3s. Der Host des Clusters ist ein Raspberry Pi 4 und mittels k3d wird ein Cluster mit einer Master Node und einer Worker Node. Als Softwareprodukt habe ich mir ein e-Commerce szenario gewählt, um Datenbankmigrationen simulieren zu können, die auch Transaktionen beinhalten, welche beim Deployment auf Beendigung warten müssen, da Zahlungsvorgänge nicht doppelt abgewickelt werden sollten, UserExperience. Es wird ein Microservice für den Shop in Kotlin geschrieben, der als Serverframework kTor verwendet. Da der Shop komplexe Business Logik verwendet und sich der Komplexität anpassen muss. Aufgrund der Variabilität der Daten wird diesem Microservice eine mongo-db  zugeordnet. Für die Transaktionen, also Bezahlvorgänge wird ein Microservice in Go implementiert, der eine SQL-basierte  Postgresql Datenbank verwendet. Die Datenbank Instanzen laufen auf der Master Node, während die Microservices, Prometheus und Grafana auf der Worker Node betrieben werden sollen. Zur veranschaulichung der Systemarchitektur ist folgende Abbildung: 
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.8\textwidth]{images/SystemArch_BA_2026.jpg}
+	\caption{Systemarchitektur: Shop- und Transaction-Microservices in k3s}
+	\label{fig:system_arch}
+\end{figure} 
+\\Als Datenstruktur habe ich ein simple Struktur verwendet. 
+\begin{table}[h!]
+	\centering
+	\caption{Datenstruktur: Shop Service (MongoDB)}
+	\label{tab:shop_mongo}
+	\begin{tabular}{|l|l|p{6cm}|}
+		\hline
+		\textbf{Feld} & \textbf{Datentyp} & \textbf{Beschreibung} \\ \hline
+		\texttt{\_id} & \texttt{ObjectId} & Identifikator des Produkts (PK) \\ \hline
+		\texttt{name} & \texttt{String} & Produktname \\ \hline
+		\texttt{description} & \texttt{String} & Produktbeschreibung \\ \hline
+		\texttt{price} & \texttt{Decimal128} & Betrag \\ \hline
+		\texttt{metadata} & \texttt{Map / Object} & Flexibles Feld \\ \hline
+		\texttt{stock\_qty} & \texttt{Int32} & Lagerbestand \\ \hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[h!]
+	\centering
+	\caption{Datenstruktur: Transaction Service (PostgreSQL)}
+	\label{tab:transaction_postgres}
+	\begin{tabular}{|l|l|p{6cm}|}
+		\hline
+		\textbf{Spalte} & \textbf{Datentyp} & \textbf{Beschreibung} \\ \hline
+		\texttt{id} & \texttt{UUID} & PK (random\_uuid). \\ \hline
+		\texttt{order\_id} & \texttt{VARCHAR(36)} & Referenz zur Bestellung \\ \hline
+		\texttt{user\_id} & \texttt{VARCHAR(36)} & Identifikator des Käufers \\ \hline
+		\texttt{amount} & \texttt{NUMERIC(15,2)} & Betrag. \\ \hline
+		\texttt{currency} & \texttt{VARCHAR(3)} & Währung \\ \hline
+		\texttt{status} & \texttt{VARCHAR(36)} & Status der Bezahlung (\texttt{PENDING}, \texttt{COMPLETED}, \texttt{FAILED}) \\ \hline
+		\texttt{created\_at} & \texttt{TIMESTAMP} & Zeitstempel mit Zeitzone für Audit-Logs \\ \hline
+	\end{tabular}
+\end{table}
+
+\section{Implementierung}
+
 
 % Literaturverzeichnis
 \printbibliography
