@@ -25,7 +25,7 @@ outer=2.5cm
 \usepackage{fontspec}
 \setmainfont{Arial}
 \usepackage{fancyhdr}
-\usepackage[backend=biber,style=authoryear]{biblatex}
+\usepackage[backend=biber,style=ieee]{biblatex}
 \usepackage{hyperref}
 
 % bib
@@ -117,19 +117,44 @@ outer=2.5cm
 	
 	% Einleitung
 	\chapter{Einleitung}
+	
 	\section{Problemstellung}
 	
 	\section{Forschungsfrage}
-	Wie verringern Canary Release mit Service Level Objective basierten Analysen den Verbrauch des Fehlerbudgets im Vergleich zu Rolling Updates mit Alertmanager?
-	
+	In welchem Maß verringert ein Canary Release mit Service-Level-Objective basierten Analysen den Verbrauch des Fehlerbudgets im Vergleich zu Rolling Updates mit statischen Alerts?
+	Diese Arbeit soll quantitativ analysieren, welcher Anteil des Fehlerbudgets bei der Wahl von Deployment Strategie und zugrunde liegender analysierter Metrik eingespart werden kann.
 	
 	\chapter{Theoretische Grundlagen}
+	Den Titel in Zusammenhang mit der Forschungsfrage lesend, stellen sich zunächst einige Fragen. Was sind Microservices und wodurch zeichnen sie sich aus?  Möglicherweise, Was ist Kubernetes? Was ist die Bereitstellung eben jener Microservices? Weiter stellen sich die Fragen, Was sind Service-Level-Objectives, Was ist das Fehlerbudget, Was ist Downtime und zuletzt, Wie kann das alles gemessen werden. Die folgenden Abschnitte beantworten diese Fragen und führen zum Versuchsaufbau hin.
 	
 	\section{Microservice Architektur}
+	James Lewis und Martin Fowler beschrieben bereits 2014 Microservice Architekturen und grenzten dabei den Architekturansatz klar von monolithischen Anwendungen ab.  In aller Kürze beschreiben die Microservice Architektur als Ansatz bei dem eine Anwendung aus dem Verbund mehrerer Services besteht, von denen jeder als eigener Prozess läuft und deren Kommunikation über leichtgewichtige Mechanismen, bspw. HTTP-Ressource API's stattfindet. Dabei werden die Services auf Geschäftsprozesse zugeschnitten und lassen sich unabhängig voneinander testen, bereitstellen und skalieren. Weiter beschreiben sie für Microservice Architekturen die folgenden Charakteristika: 
+	\begin{itemize}
+ 		\item Komponenten durch Services
+		\item Organisierung anhand der Geschäftsprozesse
+		\item Produkte, keine Projekte
+		\item Schlaue Endpunkte und Nachrichtendepots
+		\item Dezentrale Steuerung
+		\item Dezentrales Datenmanagement
+		\item Automatisierung der Infrastruktur
+		\item Fehlertoleranz
+		\item Evolutionäres Design
+	\end{itemize}
+	Diese Charakteristika lassen sich Ihrer Aussage nach bei den meisten Microservice Architekturen finden, sind jedoch nicht allgemeingültig oder als Definition zu Verstehen.
+	(Vgl. \parencite{Fowler2014})
 	
 	\section{Microservice Orchestrierung mit Kubernetes}
 	
+	
 	\section{Deployment Strategien}
+	Die Autoren der Argo-Rollouts Dokumentation listen die gängigsten Deployment Strategien in ihren Konzepten auf, dazu gehören Rolling, Recreate, Blue-Green und Canary.(Vgl. \parencite{ArgoRolloutsDeployStrat2026}) Im folgenden werden die für diese Arbeit wichtigen Strategien erklärt.
+
+	\subsection{Rolling Updates}
+	Die Kubernetes Autoren beschreiben die Standard-Strategie eines Deployment Objektes sinngemäß so, dass die Pods einer nach dem anderen ausgetauscht werden. (Vgl. \parencite{K8sRolling}) Verständlicher formuliert, wird ein Pod mit neuer Softwareversion lauffähig gemacht und nachdem dieser lauffähig ist, wird einer der Pods mit der alten Softwareversion heruntergefahren. Dieser Vorgang wird so lange wiederholt, bis alle Pods auf die neue Softwareversion aktualisiert wurden.
+	
+	\subsection{Canary}
+	Die Argo-Rollouts Dokumentationsautoren beschreiben ein Canary Deployment so, dass nur ein Bruchteil der Nutzer Zugriff auf die neue Softwareversion erhält und dieser Nutzeranteil kontinuierlich ansteigt, bis festgestellt wurde, dass die Softwareversion korrekt läuft. Danach findet die flächendeckende Akutalisierung aller Services auf die neue Softwareversion statt, zu der alle Nutzer Zugang erhalten. (Vgl. \parencite{ArgoRolloutsCanary2026})
+	Danilo Sato erklärt in den Fußnoten seiner Beschreibung für Canary Releases die Herkunft des Namens dieser Strategie. Er beschreibt, dass Minenarbeiter einen Kanarienvogel als Warnsignal in die Kohleminen mitgenommen haben. (Vgl. \parencite{Sato2014}) 
 	
 	\section{Site Reliability Engineering und dessen Konzepte}
 	
@@ -306,14 +331,24 @@ outer=2.5cm
 	
 	\chapter{Diskussion}
 	
-	\section{Interpretation der Ergebnisse}
+	\section{Der erste Testlauf der injizierten Fehlerrate für das Canary Release mit globaler Metrikanalyse}
+	Beim Erstellen der Graphen für die einzelnen Testläufe war dieser direkt auffällig. Offensichtlicher wurde die Auffälligkeit nach der Erstellung der Analyse der Canary Releases mit isolierter Metrik. Die Werte stimmten beinahe überein. Von der Erklärung abgesehen, dass die Messwerte hier zufällig innerhalb von zwei Minuten den Schwellwert geringfügig überschritten, vermute ich, dass die Beachtung der JVM-Warmup-Zeiten eine Verbesserung der Detektionszeit hervorgerufen hätte, in dem Sinne, dass die Analyse mit einer initialen Verzögerung Fehler schneller detektiert hätte, da die ersten Pods bereits lauffähig und ansprechbar gewesen wären.
 	
-	\chapter{Fazit und Ausblick}
+	\section{Nicht gemessene Fehler während der ersten Canary Phase}
+	Bei der Analyse der Daten ist aufgefallen, dass praktisch keine Fehlerrate während der initialen Canary Phase, der Gewichtung des Datenverkehrs von 10\%, erfasst wurde. Mathematisch betrachtet, sollten mit 1200 Anfragen pro Sekunde, einer Gewichtung von 10\% und einer Fehlerrate von 5\%, sechs Fehler pro Sekunde und dementsprechend 360 Fehler pro Minute auftreten, jedoch erfasste weder die globale, noch die isolierte Analyse einen einzigen Fehler für die Gewichtung während der Zeit von fünf Minuten. Ein möglicher Grund für das Nicht-Erfassen der globalen Analyse dieser Fehlerrate kann statistische Irrelevanz sein. 360 Fehler zu 72.000 Anfragen pro Minute ist für die Aggregation der Metrik möglicherweise nicht signifikant genug. Andernfalls erklärt das die Nicht-Erkennung der isolierten Analyse nicht, da hier 360 Fehler zu 7.200 Anfragen stehen, was genau der injizierten Fehlerrate entspricht.  Eine genaue Erklärung der Nicht-Erkennung lässt sich aus meiner Sicht nicht treffen.
+	
+	\section{Detektionszeit in Zusammenhang des Fehlerbudgetverbrauchs}
+	Die Berechnung der Zeit bis zur Detektion des Fehlers zeigt deutlich, dass die Rolling Updates Analyse den Fehler am schnellsten erkannt hat. Jedoch hat diese Deployment Strategie auch den größten Verbrauch am Fehlerbudget. Wie im oberen Abschnitt beschrieben, wurden für die initiale Phase des Canary Releases jedoch kaum bis keine Defekte der Softwareversion festgestellt. Würde die Zeit der initialen Phase von der Detektionszeit abgezogen werden, so hätte die Canary Release Strategie mit isolierter Analyse eine geringere Detektionszeit gegenüber dem Rolling Update. Andersherum hätte die Datenverkehr Gewichtung innerhalb der initialen Phase auch schneller erhöht werden können, um einen statistisch signifikanten Schwellwert zu überschreiten und schneller Fehler zu provozieren. Letztlich zeigen die Daten der Detektionszeit im Zusammenhang mit dem Fehlerverbrauch, dass eine schnellere Detektionszeit nicht direkt mit einer Ersparnis des Fehlerbudgets einhergehen, sondern dass der Anteil betroffener Nutzer den entscheidenden Anteil am Verbrauch des Fehlerbudgets trägt.
+	
+	\chapter{Fazit}
+	Abschließend werden die Forschungsfrage beantwortet und ein Ausblick über mögliche sich dieser Arbeit anschließende Forschungsprojekte benannt.
 	
 	\section{Beantwortung der Forschungsfrage}
+	Im speziellen Versuchsaufbau von 1200 Anfragen pro Sekunde auf den jeweiligen Service und injizierten Fehlern von fünf Prozent Fehlerrate und 15 Millisekunden zusätzlicher Latenz, konnte das Canary Release mit SLO basierter Analyse bei gleicher überprüfter Metrik eine Reduzierung des Fehlerbudgetverbrauchs gegenüber Rolling Updates von 28\% für die injizierte Fehlerrate und 23\% für injizierte Latenz erreichen. Durch den Einsatz isolierter Analysen für Canary Releases war es möglich das Fehlerbudget um 51\% bei injizierter Fehlerrate und 25\% bei injizierter Latenz zu verringern. 
 	
-	\section{Handlungsempfehlungen}
-	
+	\section{Ausblick}
+	In weiteren analytischen Arbeiten kann überprüft werden, inwiefern sich die Detektionszeit bei feinerer Gewichtung des Datenverkehrs verringern lässt, welchen Einfluss das Analyseintervall auf die Detektionszeiten hat oder inwiefern sich Deployments mit Blue-Green Strategie unterscheiden.
+	Weiter könnte der Kostenfaktor analysiert werden, der durch den Mehraufwand dedizierter Monitoring Nodes entsteht und anschließend in Verhältnis zur Ersparnis gesetzt werden.
 	
 	% Literaturverzeichnis
 	\printbibliography
