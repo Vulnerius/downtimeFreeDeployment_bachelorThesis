@@ -16,7 +16,9 @@ jobs:
       - name: GitHub Action with TeXLive
         uses: xu-cheng/latex-action@v4
         with:
-          root_file: ba_2026_54584.tex
+          root_file: |
+            einband.tex
+            ba_2026_54584.tex
           latexmk_use_lualatex: true
           args: "-pdf -lualatex -interaction=nonstopmode -halt-on-error"
           
