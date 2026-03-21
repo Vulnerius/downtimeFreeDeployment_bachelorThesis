@@ -21,7 +21,7 @@ jobs:
           args: "-pdf -lualatex -interaction=nonstopmode -halt-on-error"
           
       - name: Upload PDF
-        uses: actions/upload-artifact@v3.2.2
+        uses: actions/upload-artifact@v6
         with:
           name: Bachelorarbeit-PDF
           path: ba_2026_54584.pdf.pdf
