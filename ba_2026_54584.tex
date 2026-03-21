@@ -25,7 +25,7 @@ outer=2.5cm
 \usepackage{fontspec}
 \setmainfont{Arial}
 \usepackage{fancyhdr}
-\usepackage[backend=biber,style=ieee]{biblatex}
+\usepackage[backend=biber,style=numeric]{biblatex}
 \usepackage{hyperref}
 
 % bib
@@ -109,7 +109,6 @@ outer=2.5cm
 	
 	\tableofcontents
 	\listoffigures
-	\listoftables
 	
 	\cleardoublepage
 	
@@ -145,7 +144,7 @@ outer=2.5cm
 	(Vgl. \parencite{Fowler2014})
 	
 	\section{Microservice Orchestrierung mit Kubernetes}
-	
+	In der Dokumentation zu Kubernetes ist nachzulesen, dass Kubernetes eine Open-Source Softwarelösung ist, die containerisierte Applikationen und Services verwaltet. In Produktionsumgebungen sollen die Container, die zur Lauffähigkeit des Systems beitragen, verwaltet werden und es müsse sichergestellt sein, dass es keine Downtime gibt. Dabei beschreiben die Autoren, dass Kubernetes ein Framework sei, welches verteilte Systeme resilient laufen lasse. Es kümmere sich darum, dass die Skalierung und Failover Mechanismen der Applikation bereitgestellt werde. Einige der Hauptaufgaben, die Kubernetes übernehmen könne sind, Service Erreichbarkeit und Lastverteilung, automatisierte Veröffentlichungen und Rollbacks und Selbstheilung. (Vgl. \parencite{K8sOverview}) Die kleinsten ausrollbaren Einheiten in Kubernetes sind Pods. Diese dienen zu Ausführung der containerisierten Applikation und können von übergeordneten Komponenten verwaltet werden. (Vgl. \parencite{K8sWl}) Eine dieser übergeordneten Komponenten von Pods sind Services. Sie dienen als nach außen gerichtete Endpunkte und verteilen den ankommenden Datenverkehr auf die ihm zugeordneten Pods. (Vgl. \parencite{K8sSvc})
 	
 	\section{Deployment Strategien}
 	Die Autoren der Argo-Rollouts Dokumentation listen die gängigsten Deployment Strategien in ihren Konzepten auf, dazu gehören Rolling, Recreate, Blue-Green und Canary.(Vgl. \parencite{ArgoRolloutsDeployStrat2026}) Im folgenden werden die für diese Arbeit wichtigen Strategien erklärt.
@@ -164,7 +163,7 @@ outer=2.5cm
 	Chris Jones et al. beschreiben in der Einführung des Site Reliability Engineering Buchs für Kapitel 2 "Principles" die Kernkonzepte für SRE. Dazu gehört Risiken einzugehen, die Definition von Service Level Objectives (SLO's), die Automatisierung infrastruktureller Prozesse, Monitoring der Applikationen und die Entwicklung einer Veröffentlichungsstrategie. (Vgl. \parencite{GoogleSREPrinzipien}) Folgend werden die Punkte Risiken eingehen, Defintion von SLO's und Monitoring der Applikationen genauer beschrieben.
 	
 	\subsubsection{Risiken eingehen}
-	Zuerst beschreiben Alvidrez und Guliani, dass von einem Unternehmen wie Google erwartet würde, dass die Services zu 100\% zuverlässig wären. Doch im Folgenden wird festgestellt, dass ab einem bestimmten Punkt die Erhöhung der Zuverlässigkeit einer Software zur Verschlechterung des Services und dessen Nutzern führt. Damit gehe einher, dass neue Features weniger häufig veröffentlicht werden könnten, während Nutzer den Unterschied von hoher zu extremer Verlässlichkeit kaum spürten. (Vgl. \parencite{GoogleSRERisk}) Im letzten Abschnitt beschreiben Roth und Quinito die Motivation für ein Fehlerbudget. Dabei erklären sie, dass ein Fehlerbudget als objektive Metrik genutzt wird, um einzuschätzen, wie unzuverlässig ein System während einer bestimmten Zeitperiode sein darf. Der Hauptvorteil eines solchen Fehlerbudgets wird als Gleichgewicht von Innovation und Zuverlässigkeit beschrieben. So lange sich das System innerhalb des Fehlerbudgets bewegt, können neue Features veröffentlicht werden, wird das Budget jedoch überschritten, finden innerhalb des definierten Zeitraums keine weiteren Veröffentlichungen statt.
+	Zuerst beschreiben Alvidrez und Guliani, dass von einem Unternehmen wie Google erwartet würde, dass die Services zu 100\% zuverlässig wären. Doch im Folgenden wird festgestellt, dass ab einem bestimmten Punkt die Erhöhung der Zuverlässigkeit einer Software zur Verschlechterung des Services und dessen Nutzern führt. Damit gehe einher, dass neue Features weniger häufig veröffentlicht werden könnten, während Nutzer den Unterschied von hoher zu extremer Verlässlichkeit kaum spürten. (Vgl. \parencite{GoogleSRERisk}) Im letzten Abschnitt beschreiben Roth und Quinito die Motivation für ein Fehlerbudget. Dabei erklären sie, dass ein Fehlerbudget als objektive Metrik genutzt wird, um einzuschätzen, wie unzuverlässig ein System während einer bestimmten Zeitperiode sein darf. Der Hauptvorteil eines solchen Fehlerbudgets wird als Gleichgewicht von Innovation und Zuverlässigkeit beschrieben. So lange sich das System innerhalb des Fehlerbudgets bewegt, können neue Features veröffentlicht werden, wird das Budget jedoch überschritten, finden innerhalb des definierten Zeitraums keine weiteren Veröffentlichungen statt. (Vgl. \parencite{GoogleSRERisk})
 	
 	\subsubsection{Service Level Objectives}
 	Zuerst werden von Jones et al. Terminologien definiert. Die Service Level Indicators werden als definiertes quantitatives Maß eines Aspekts des Services beschrieben, bspw. Latenz oder Fehlerrate. Service Level Objectives werden als Zielwert oder Wertebereich von Service Level Indicators, bspw. die Fehlerrate ist weniger als ein Prozent, definiert. Service Level Agreements werden als Vertragsverbindlichkeiten beschrieben, deren Nicht-Einhaltung meist finanzielle Konsequenzen nach sich trägt. (Vgl. \parencite{GoogleSREChap4}) Für diese Arbeit sind die Service Level Indicators (SLI) und Service Level Objectives (SLO's) von Bedeutung, da sie den Rahmen erlaubter bzw. kalkulierter Downtime eingrenzen.
