@@ -120,6 +120,7 @@ outer=2.5cm
 	
 	\section{Problemstellung}
 	
+	
 	\section{Forschungsfrage}
 	In welchem Maß verringert ein Canary Release mit Service-Level-Objective basierten Analysen den Verbrauch des Fehlerbudgets im Vergleich zu Rolling Updates mit statischen Alerts?
 	Diese Arbeit soll quantitativ analysieren, welcher Anteil des Fehlerbudgets bei der Wahl von Deployment Strategie und zugrunde liegender analysierter Metrik eingespart werden kann.
@@ -156,9 +157,32 @@ outer=2.5cm
 	Die Argo-Rollouts Dokumentationsautoren beschreiben ein Canary Deployment so, dass nur ein Bruchteil der Nutzer Zugriff auf die neue Softwareversion erhält und dieser Nutzeranteil kontinuierlich ansteigt, bis festgestellt wurde, dass die Softwareversion korrekt läuft. Danach findet die flächendeckende Akutalisierung aller Services auf die neue Softwareversion statt, zu der alle Nutzer Zugang erhalten. (Vgl. \parencite{ArgoRolloutsCanary2026})
 	Danilo Sato erklärt in den Fußnoten seiner Beschreibung für Canary Releases die Herkunft des Namens dieser Strategie. Er beschreibt, dass Minenarbeiter einen Kanarienvogel als Warnsignal in die Kohleminen mitgenommen haben. (Vgl. \parencite{Sato2014}) 
 	
-	\section{Site Reliability Engineering und dessen Konzepte}
+	\section{Site Reliability Engineering (SRE)}
+	Die AWS und RedHat Autoren beschreiben Software Reliability Engineering als Praxis, die mithilfe von Software Lösungen infrastrukturelle Prozesse automatisiert. Diese beinhalten unter anderem Systemverwaltung, Applikationsmonitoring und andere operative Aufgaben. Weiter wird beschrieben, dass diese Praxis dabei hilft, dass skalierbare Softwaresysteme, aufgrund der Automatisierung manueller Prozesse, zuverlässiger werden. (Vgl. \parencite{AWSSRE, RedHatSRE}) Die Redhat Autoren beschreiben weiter, dass SRE ein Gleichgewicht zwischen hochfrequenter Veröffentlichung neuer Features und der Zuverlässigkeit für Nutzer schafft.
+
+	\subsection{Konzepte und Prinzipien}
+	Chris Jones et al. beschreiben in der Einführung des Site Reliability Engineering Buchs für Kapitel 2 "Principles" die Kernkonzepte für SRE. Dazu gehört Risiken einzugehen, die Definition von Service Level Objectives (SLO's), die Automatisierung infrastruktureller Prozesse, Monitoring der Applikationen und die Entwicklung einer Veröffentlichungsstrategie. (Vgl. \parencite{GoogleSREPrinzipien}) Folgend werden die Punkte Risiken eingehen, Defintion von SLO's und Monitoring der Applikationen genauer beschrieben.
 	
-	\section{Monitoring und Observability}
+	\subsubsection{Risiken eingehen}
+	Zuerst beschreiben Alvidrez und Guliani, dass von einem Unternehmen wie Google erwartet würde, dass die Services zu 100\% zuverlässig wären. Doch im Folgenden wird festgestellt, dass ab einem bestimmten Punkt die Erhöhung der Zuverlässigkeit einer Software zur Verschlechterung des Services und dessen Nutzern führt. Damit gehe einher, dass neue Features weniger häufig veröffentlicht werden könnten, während Nutzer den Unterschied von hoher zu extremer Verlässlichkeit kaum spürten. (Vgl. \parencite{GoogleSRERisk}) Im letzten Abschnitt beschreiben Roth und Quinito die Motivation für ein Fehlerbudget. Dabei erklären sie, dass ein Fehlerbudget als objektive Metrik genutzt wird, um einzuschätzen, wie unzuverlässig ein System während einer bestimmten Zeitperiode sein darf. Der Hauptvorteil eines solchen Fehlerbudgets wird als Gleichgewicht von Innovation und Zuverlässigkeit beschrieben. So lange sich das System innerhalb des Fehlerbudgets bewegt, können neue Features veröffentlicht werden, wird das Budget jedoch überschritten, finden innerhalb des definierten Zeitraums keine weiteren Veröffentlichungen statt.
+	
+	\subsubsection{Service Level Objectives}
+	Zuerst werden von Jones et al. Terminologien definiert. Die Service Level Indicators werden als definiertes quantitatives Maß eines Aspekts des Services beschrieben, bspw. Latenz oder Fehlerrate. Service Level Objectives werden als Zielwert oder Wertebereich von Service Level Indicators, bspw. die Fehlerrate ist weniger als ein Prozent, definiert. Service Level Agreements werden als Vertragsverbindlichkeiten beschrieben, deren Nicht-Einhaltung meist finanzielle Konsequenzen nach sich trägt. (Vgl. \parencite{GoogleSREChap4}) Für diese Arbeit sind die Service Level Indicators (SLI) und Service Level Objectives (SLO's) von Bedeutung, da sie den Rahmen erlaubter bzw. kalkulierter Downtime eingrenzen.
+	
+	\subsection{Monitoring und Observability}
+	Ewaschuk und Beyer beschreiben das Monitoring verteilter Systeme als "Sammeln, Verarbeiten, Zusammenführen und Anzeigen quantitativer Echtzeitdaten" \cite{GoogleSREMon} eines Systems. Weiter wird zwischen White-Box Monitoring, dem Auslesen Service-interner Metriken und Black-Box Monitoring, dem außerhalb sichtbaren Verhalten, "wie ein Nutzer es sehen würde" \cite{GoogleSREMon} unterschieden. Folgend werden die vier goldene Signale des Monitoring beschrieben, dazu gehören:
+	\begin{itemize}
+		\item Latenz
+		\item Datenverkehr
+		\item Fehler
+		\item Sättigung
+	\end{itemize}
+	(Vgl. \parencite{GoogleSREMon})
+	
+	Die AWS Autoren beschreiben Observability für SRE als Prozess der Vorbereitung auf Unsicherheiten, wenn eine Software Nutzern zur Verfügung gestellt wird. Dabei werden Metriken, Logs und Traces gesammelt und ausgewertet, um Schwachstellen zu identifizieren und zu beheben. (Vgl. \parencite{AWSSRE})
+
+	\section{Downtime im Sinne dieser Arbeit}
+	In Wikipedia wird Downtime als "die gebräuchliche Bezeichnung der Zeit, in der ein System, insb. ein Computersystem, nicht verfügbar bzw. nicht funktionstüchtig ist. Man unterscheidet zwischen geplanter und ungeplanter Downtime." \cite{WikiDowntime} definiert. Die geplante Downtime in dieser Arbeit wird der Zeit zugeordnet, die sich innerhalb der definierten SLO's bewegt. Jede Nicht-Verfügbarkeit des Systems über diese Zeit hinaus wird der ungeplanten Downtime zugeordnet. Die Downtime-Freiheit im Sinne dieser Arbeit bewegt sich innerhalb definierter SLO Grenzen, da ein System mit 100\% Verfügbarkeit selbst für ein Unternehmen wie Google nicht erreichbar ist. (Vgl. \textit{Key Insights} \parencite{GoogleSRERisk})
 	
 	\chapter{Konzeption und Methodik}
 	Als sinnbildliches Szenario wurde ein Online-Shop gewählt. Die Architektur des Systems besteht aus zwei Microservices, jeweils ein Repräsentant für den Shop und für die Transaktionen. Zwischen den Services besteht technisch keine Abhängigkeit. Im Microservice für die Transaktionen wird ein simulierter Fehler injiziert, während der Shop-Microservice als Referenz dient, um gegebenenfalls infrastrukturelle Fehler erkennbar zu machen, welche nicht auf die injizierten Fehler zurückzuführen sind. Da es sich hierbei um eine nutzerzentrierte Anwendung handelt, werden zwei Fehlerszenarien überprüft. Einerseits die Injektion einer Fehlerrate, in dem der Service einen internen Serverfehler produziert. Andererseits die Simulation verlängerter Antwortzeit. Es wurde jeweils überprüft, wie lange die jeweilige Analyse benötigt, den Fehler zu erkennen und anschließend den stabilen Zustand widerherzustellen. Weiter wurde berechnet, wie hoch der Verbrauch des Fehlerbudgets innerhalb des getesteten Zeitfensters war.
