@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
       - name: GitHub Action with TeXLive
         uses: xu-cheng/latex-action@v4
@@ -21,7 +21,7 @@ jobs:
           args: "-pdf -lualatex -interaction=nonstopmode -halt-on-error"
           
       - name: Upload PDF
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3.2.2
         with:
           name: Bachelorarbeit-PDF
-          path: main.pdf
+          path: ba_2026_54584.pdf.pdf
