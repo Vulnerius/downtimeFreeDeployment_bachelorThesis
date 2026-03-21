@@ -98,11 +98,11 @@ outer=2.5cm
 	
 	\cleardoublepage
 	\subsubsection*{Bibliografische Angaben}
-	Fuchs, Paul: Die Downtime-freie Bereitstellung von Microservices in Kubernetes Umgebungen. TODO:  5 Seiten, 14 Abbildungen, 1 Anlage mit Quelltexten, Hochschule Mittweida (FH), Fachbereich Angewandte Computer- und Biowissenschaften \\ \\
+	Fuchs, Paul: Die Downtime-freie Bereitstellung von Microservices in Kubernetes Umgebungen. TODO:  5 Seiten, 13 Abbildungen, 1 Anlage mit Quelltexten, Hochschule Mittweida (FH), Fachbereich Angewandte Computer- und Biowissenschaften \\ \\
 	Bachelorarbeit 2026
 	\vfill 
 	Abstract
-	TODO 
+	In the current world of software engineering developers are measured by the frequency of software releases while operations have to maintain a stable and reliable system thus creating a discrepancy in time-to-market and reliability. While DevOps has the methodology to create collaboration between these team, Site Reliability Engineering implements these principles in practice. With the introduction of an error budget team now can balance between frequent releases and reliable systems. Simply put by - Do we still have budget? Yes, then go release. No, then we maintain the reliability until we have some budget available again. This thesis analyses how the consumption of error budget can be reduced by using canary releases instead of rolling updates and further analyse the canary update with white-box monitoring.
 	
 	\pagenumbering{Roman}
 	% Inhaltsverzeichnis
@@ -117,8 +117,7 @@ outer=2.5cm
 	% Einleitung
 	\chapter{Einleitung}
 	
-	\section{Problemstellung}
-	
+	In der modernen Welt der Softwareentwicklung werden Entwicklerteams daran gemessen, wie schnell sie neue Features in das bestehende System implementieren können, während operative Teams daran gemessen werden, wie stabil und zuverlässig das System läuft, welches sie operieren. Hier entsteht eine Diskrepanz zwischen Entwicklern, die ihre entwickelten Softwareanpassungen möglichst auf die Produktivumgebung ausrollen möchten und den Operativen Teams, die sicherstellen müssen, dass das System weiterhin zuverlässig funktioniert. Während DevOps Methoden die Theorie für die Kollaboration der beiden Teams beschreiben, ist Site Reliability Engineering die angewandte Praxis dieser Methoden. Mit der Einführung eines Fehlerbudgets wird eine Brücke zwischen schnellen Veröffentlichungen und stabilem System gebaut. Das Fehlerbudget ermöglicht es beiden Teams ein Gleichgewicht in der Erfüllung ihrer Ziele zu finden. Ist das Fehlerbudget ausgereizt, werden keine Veröffentlichungen ausgerollt, ist jedoch eine ausreichende Menge an Fehlerbudget übrig, kann das Risiko des Ausrollens einer neuen Softwareversion eingegangen werden. In dieser Arbeit wird analysiert, wie der Verbrauch des Fehlerbudgets bei der Bereitstellung neuer Softwareversionen mithilfe von Analysen weiter reduziert werden kann, damit selbst nach einer fehlerbehafteten Releases ausreichend Fehlerbudget für weitere Softwareupdates zur Verfügung steht.
 	
 	\section{Forschungsfrage}
 	In welchem Maß verringert ein Canary Release mit Service-Level-Objective basierten Analysen den Verbrauch des Fehlerbudgets im Vergleich zu Rolling Updates mit statischen Alerts?
@@ -157,7 +156,7 @@ outer=2.5cm
 	Danilo Sato erklärt in den Fußnoten seiner Beschreibung für Canary Releases die Herkunft des Namens dieser Strategie. Er beschreibt, dass Minenarbeiter einen Kanarienvogel als Warnsignal in die Kohleminen mitgenommen haben. (Vgl. \parencite{Sato2014}) 
 	
 	\section{Site Reliability Engineering (SRE)}
-	Die AWS und RedHat Autoren beschreiben Software Reliability Engineering als Praxis, die mithilfe von Software Lösungen infrastrukturelle Prozesse automatisiert. Diese beinhalten unter anderem Systemverwaltung, Applikationsmonitoring und andere operative Aufgaben. Weiter wird beschrieben, dass diese Praxis dabei hilft, dass skalierbare Softwaresysteme, aufgrund der Automatisierung manueller Prozesse, zuverlässiger werden. (Vgl. \parencite{AWSSRE, RedHatSRE}) Die Redhat Autoren beschreiben weiter, dass SRE ein Gleichgewicht zwischen hochfrequenter Veröffentlichung neuer Features und der Zuverlässigkeit für Nutzer schafft.
+	Die AWS und RedHat Autoren beschreiben Site Reliability Engineering als Praxis, die mithilfe von Software Lösungen infrastrukturelle Prozesse automatisiert. Diese beinhalten unter anderem Systemverwaltung, Applikationsmonitoring und andere operative Aufgaben. Weiter wird beschrieben, dass diese Praxis dabei hilft, dass skalierbare Softwaresysteme, aufgrund der Automatisierung manueller Prozesse, zuverlässiger werden. (Vgl. \parencite{AWSSRE, RedHatSRE}) Die Redhat Autoren beschreiben weiter, dass SRE ein Gleichgewicht zwischen hochfrequenter Veröffentlichung neuer Features und der Zuverlässigkeit für Nutzer schafft.
 
 	\subsection{Konzepte und Prinzipien}
 	Chris Jones et al. beschreiben in der Einführung des Site Reliability Engineering Buchs für Kapitel 2 "Principles" die Kernkonzepte für SRE. Dazu gehört Risiken einzugehen, die Definition von Service Level Objectives (SLO's), die Automatisierung infrastruktureller Prozesse, Monitoring der Applikationen und die Entwicklung einer Veröffentlichungsstrategie. (Vgl. \parencite{GoogleSREPrinzipien}) Folgend werden die Punkte Risiken eingehen, Defintion von SLO's und Monitoring der Applikationen genauer beschrieben.
