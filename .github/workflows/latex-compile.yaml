@@ -18,7 +18,7 @@ jobs:
         with:
           root_file: ba_2026_54584.tex
           latexmk_use_lualatex: true
-          run: "-pdf -lualatex -interaction=nonstopmode -halt-on-error"
+          args: "-pdf -lualatex -interaction=nonstopmode -halt-on-error"
           
       - name: Upload PDF
         uses: actions/upload-artifact@v4
