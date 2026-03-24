@@ -96,44 +96,46 @@ outer=2.5cm
 		\end{tabular}
 	\end{titlepage}
 	
-	\cleardoublepage
+	\pagenumbering{Roman}
 	\subsubsection*{Bibliografische Angaben}
 	Fuchs, Paul: \\ 
 	Die Downtime-freie Bereitstellung von Microservices in Kubernetes Umgebungen. \\
 	41 Seiten, Hochschule Mittweida (FH), Fachbereich Angewandte Computer- und Biowissenschaften, Bachelorarbeit 2026
 	\vfill 
-	Abstract \\
-	In the current world of software engineering developers are measured by the frequency of software releases while operations have to maintain a stable and reliable system thus creating a discrepancy in time-to-market and reliability. While DevOps has the methodology to create collaboration between these teams, Site Reliability Engineering implements these principles in practice. With the introduction of an error budget teams can balance between frequent releases and reliable systems. Simply put by - Do we still have budget? Yes, then go release. No, then we maintain the reliability until we have some budget available again. This thesis analyses how the consumption of error budget can be reduced by using canary releases instead of rolling updates and further by analysing the canary update with white-box monitoring.
-	
-	\pagenumbering{Roman}
-	% Inhaltsverzeichnis
-	
+	\textbf{Abstract}\\
+	In the current world of software engineering developers are measured by the frequency of software releases while operations have to maintain a stable and reliable system thus creating a disbalance in time-to-market and reliability. While DevOps has the methodology to create collaboration between these teams, Site Reliability Engineering is the practical application of these principles. With the introduction of an error budget teams can balance between frequent releases and reliable systems. This thesis analyses how the consumption of error budget can be reduced by using canary releases instead of rolling updates and further by analysing the canary update with white-box monitoring. This study shows that 28\% of error budget could be saved by introducing canary releases and an additional 23\% of error budget was saved by reducing the detection time using white box monitoring during injection of a failure rate. Injecting waiting time to simulate long answer times this study showed that 23\% of error budget could be saved with canary releases and an additional 2\% were saved by faster detection times using white-box monitoring.
+	\\ 
+	\textbf{Zusammenfassung}\\
+	In der aktuellen Welt der Softwareentwicklung werden Developer-Teams anhand ihrer Veröffentlichungsfrequenz gemessen, während operative Teams nach der Systemstabilität und -verlässlichkeit beurteilt werden. Das erschafft die Notwendigkeit eines Gleichgewichts von frequenten Veröffentlichungen und stabilen Systemen. Mit der Einführung eines Fehlerbudgets kann die Balance dessen gehalten werden. Diese Arbeit untersucht inwiefern eine Verringerung des Fehlerbudgetverbrauchs mithilfe der Canary Veröffentlichungsstrategie gegenüber der Rolling Strategie möglich ist und anschließend inwiefern White-Box Monitoring eine weitere Verringerung des Verbrauchs des Fehlerbudgets durch schnellere Detektionszeit ermöglicht. Die in dieser Arbeit durchgeführten Experimente haben gezeigt, dass die Canary Strategie 28\% weniger Fehlerbudget als die Rolling Strategie verbrauchte und sich zusätzlich weitere 23\% des Budgets durch eine reduzierte Detektionszeit mittels White-Box Monitoring, bei injizierter Fehlerrate, einsparen ließen. Für eine simuliert längere Antwortzeit konnte die Canary Strategie gegenüber dem Rolling Update 23\% des Fehlerbudgets schonen, zusätzlich weitere 2\% konnten durch reduzierte Detektionszeit mithilfe von White-Box Monitoring eingespart werden.
+
+	\section*{Abkürzungsverzeichnis}
+	\begin{tabbing}
+		\textbf{Abkürzung} \hspace{2cm} \= \textbf{Bedeutung} \\
+		SRE \> Site Reliability Engineering \\
+		SLO \> Service Level Objective \\
+		SLI \> Service Level Indicator\\
+		MTTR \> Mean Time To Recover \\
+		MTTD \> Mean Time to Detect \\
+		API \> Application Programming Interface \\
+	\end{tabbing}	
+
+	% Inhaltsverzeichnis	
 	\tableofcontents
 	\listoffigures
 	
-	\cleardoublepage
-	
-	\pagenumbering{arabic}
-	
 	% Einleitung
 	\chapter{Einleitung}
-	
-	In der modernen Welt der Softwareentwicklung werden Entwicklerteams daran gemessen, wie schnell sie neue Features in das bestehende System implementieren können, während operative Teams daran gemessen werden, wie stabil und zuverlässig das System läuft, welches sie operieren. Hier entsteht eine Diskrepanz zwischen Entwicklern, die ihre entwickelten Softwareanpassungen möglichst schnell auf die Produktivumgebung ausrollen möchten und den Operativen Teams, die sicherstellen müssen, dass das System weiterhin zuverlässig funktioniert. Während DevOps Methoden die Theorie für die Kollaboration der beiden Teams beschreiben, ist Site Reliability Engineering die angewandte Praxis dieser Methoden. Mit der Einführung eines Fehlerbudgets wird eine Brücke zwischen schnellen Veröffentlichungen und stabilem System gebaut. Das Fehlerbudget ermöglicht es beiden Teams ein Gleichgewicht in der Erfüllung ihrer Ziele zu finden. Ist das Fehlerbudget ausgereizt, werden keine Veröffentlichungen ausgerollt. Ist jedoch eine ausreichende Menge an Fehlerbudget übrig, kann das Risiko des Ausrollens einer neuen Softwareversion eingegangen werden. In dieser Arbeit wird analysiert, wie der Verbrauch des Fehlerbudgets bei der Bereitstellung neuer Softwareversionen mithilfe von Analysen weiter reduziert werden kann, damit selbst nach einem fehlerbehafteten Release ausreichend Fehlerbudget für weitere Softwareupdates zur Verfügung steht.
-	
-	\section{Forschungsfrage}
-	In welchem Maß verringert ein Canary Release mit Service-Level-Objective basierten Analysen den Verbrauch des Fehlerbudgets im Vergleich zu Rolling Updates mit statischen Alerts?
-	Diese Arbeit soll quantitativ analysieren, welcher Anteil des Fehlerbudgets bei der Wahl von Deployment Strategie und zugrunde liegender analysierter Metrik eingespart werden kann.
+	\pagenumbering{arabic}
 	
 	\chapter{Theoretische Grundlagen}
-	Den Titel in Zusammenhang mit der Forschungsfrage lesend, stellen sich zunächst einige Fragen. Was sind Microservices und wodurch zeichnen sie sich aus?  Möglicherweise, Was ist Kubernetes? Was ist die Bereitstellung eben jener Microservices? Weiter stellen sich die Fragen, Was sind Service-Level-Objectives, Was ist das Fehlerbudget, Was ist Downtime und zuletzt, Wie kann das gemessen werden. Die folgenden Abschnitte beantworten diese Fragen und führen zum Versuchsaufbau hin.
 	
 	\section{Microservice Architektur}
-	James Lewis und Martin Fowler beschrieben bereits 2014 Microservice Architekturen und grenzten dabei den Architekturansatz klar von monolithischen Anwendungen ab.  In aller Kürze beschreiben sie die Microservice Architektur als Ansatz bei dem eine Anwendung aus dem Verbund mehrerer Services besteht, von denen jeder als eigener Prozess läuft und deren Kommunikation über leichtgewichtige Mechanismen, bspw. HTTP-Ressource API's stattfindet. Dabei werden die Services auf Geschäftsprozesse zugeschnitten und lassen sich unabhängig voneinander testen, bereitstellen und skalieren. Weiter beschreiben sie für Microservice Architekturen die folgenden Charakteristika: 
+	In dieser Arbeit wurde sich für eine Microservice Architektur entschieden, um mithilfe der \textit{Organisierung nach Geschäftsprozessen} einen fehlerinjizierten Service von der Vergleichsgruppe abzugrenzen. Alternativ hätte die Überprüfung auch durch verschiedene Endpunkte und Funktionen innerhalb desselben Service durchgeführt werden können. James Lewis und Martin Fowler beschrieben bereits 2014 Microservice Architekturen und grenzten dabei den Architekturansatz klar von monolithischen Anwendungen ab.  Im Unterschied zu diesen, beschreiben sie die Microservice Architektur als Ansatz bei dem eine Anwendung aus dem Verbund mehrerer Services besteht, von denen jeder als eigener Prozess läuft und deren Kommunikation über leichtgewichtige Mechanismen, bspw. HTTP-Ressource API's stattfindet. Dabei werden die Services auf Geschäftsprozesse zugeschnitten und lassen sich unabhängig voneinander testen, bereitstellen und skalieren. Weiter beschreiben sie für Microservice Architekturen die folgenden Charakteristika: 
 	\begin{itemize}
  		\item Komponenten durch Services
 		\item Organisierung anhand der Geschäftsprozesse
 		\item Produkte, keine Projekte
-		\item Schlaue Endpunkte und Nachrichtendepots
+		\item schlaue Endpunkte und Nachrichtendepots
 		\item Dezentrale Steuerung
 		\item Dezentrales Datenmanagement
 		\item Automatisierung der Infrastruktur
@@ -141,15 +143,19 @@ outer=2.5cm
 		\item Evolutionäres Design
 	\end{itemize}
 	Diese Charakteristika lassen sich Ihrer Aussage nach bei den meisten Microservice Architekturen finden, sind jedoch nicht allgemeingültig oder als Definition zu verstehen.
-	(Vgl. \parencite{Fowler2014})
+	(Vgl. \parencite{Fowler2014}) 
 	
 	\section{Microservice Orchestrierung mit Kubernetes}
-	82\% der Unternehmen, die mit Containern arbeiten, verwenden Kubernetes. Daraus erfolgt, dass Kubernetes zum Standardrepertoire für die Orchestrierung von Container-basierten Applikationen in Produktivumgebungen zählt. (Vgl. S 11 \parencite{CNCFSurv}) Kubernetes ist eine Open-Source Softwarelösung ist, die containerisierte Applikationen und Services verwaltet. In Produktionsumgebungen sollen die Container verwaltet werden und es muss sichergestellt sein, dass es keine Downtime gibt. Kubernetes ermöglicht die Skalierung und Failover Mechanismen von Applikation. Einige der Hauptaufgaben, die Kubernetes übernimmt, sind die Service Erreichbarkeit und Lastverteilung, die automatisierte Veröffentlichung und Rollbacks und die Selbstheilung. (Vgl. \parencite{K8sOverview}) Die kleinsten ausrollbaren Einheiten in Kubernetes sind Pods. Diese dienen zu Ausführung der containerisierten Applikation und können von übergeordneten Komponenten verwaltet werden. (Vgl. \parencite{K8sWl}) Eine dieser übergeordneten Komponenten von Pods sind Services. Sie dienen als nach außen gerichtete Endpunkte und verteilen den ankommenden Datenverkehr auf die ihm zugeordneten Pods. (Vgl. \parencite{K8sSvc}) 
-	
-	TODO: ABBILDUNG SVC-NETWORK
+	82\% der Unternehmen, die mit Containern arbeiten, verwenden Kubernetes. Daraus erfolgt, dass Kubernetes zum Standardrepertoire für die Orchestrierung von Container-basierten Applikationen in Produktivumgebungen zählt. (Vgl. S. 11 \parencite{CNCFSurv}) Kubernetes ist eine Open-Source Softwarelösung ist, die containerisierte Applikationen und Services verwaltet. In Produktionsumgebungen sollen die Container verwaltet werden und es muss sichergestellt sein, dass es keine Downtime gibt. Kubernetes ermöglicht die Skalierung und Failover Mechanismen von Applikation. Einige der Hauptaufgaben, die Kubernetes übernimmt, sind die Service Erreichbarkeit und Lastverteilung, die automatisierte Veröffentlichung und Rollbacks und die Selbstheilung. (Vgl. \parencite{K8sOverview}) Die kleinsten ausrollbaren Einheiten in Kubernetes sind Pods. Diese dienen zu Ausführung der containerisierten Applikation und können von übergeordneten Komponenten verwaltet werden. (Vgl. \parencite{K8sWl}) Eine dieser übergeordneten Komponenten von Pods sind Services. Sie dienen als nach außen gerichtete Endpunkte und verteilen den ankommenden Datenverkehr auf die ihm zugeordneten Pods. (Vgl. \parencite{K8sSvc}) Abbildung \ref{fig:k8s-svc-network} verdeutlicht die Anfrageweiterleitung der nach außen gerichteten Endpunkte von Services an die entsprechenden Pods. So werden Anfragen von außerhalb des Clusters direkt an die jeweiligen Pods zur Verarbeitung weitergeleitet.
+		\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.8\textwidth]{images/gateway-request-flow.pdf}
+		\caption{Anfrageverarbeitung von Services an Pods mit Gateway API}
+		\label{fig:k8s-svc-network}
+	\end{figure}
 	
 	\section{Deployment Strategien}
-	Um Microservices bereitzustellen und währenddessen die Funktionsfähigkeit des Systems nicht zu beeinflussen, haben sich unterschiedliche Strategien entwickelt. Dazu zählen die Strategien Big-Bang (oder Recreate), Rolling, Blue-Green, Canary, A-B Testing und Shadow. (Vgl. \parencite{deployStraDie}) In dieser Arbeit wird die Rolling Strategie, als Kubernetes Standard Strategie, der komplexeren Canary Strategie gegenübergestellt. Dies soll zeigen, inwiefern der Mehraufwand der Implementierung komplexerer Strategien, Vorteile bei der Einsparung des Fehlerbudgets und daraus resultierend, ein verlässliches System etabliert werden kann. Von der Gegenüberstellung weiterer Strategien wurde abgesehen, da die Recreate Strategie bedingte Downtime verursacht. (Vgl. S. 2 \parencite{deployStraDie}) A-B Testing wurde nicht in Betracht gezogen, da diese Strategie weniger für infrastrukturelle, sondern für Nutzererfahrung entwickelt wurde. (Vgl. S.3 \parencite{deployStraDie} ) Weiterführend wurde von der Implementierung der Blue-Green- und Shadow Strategie, aufgrund des Mehraufwands für Ressourcen, abgesehen.
+	Um Microservices bereitzustellen und währenddessen die Funktionsfähigkeit des Systems nicht zu beeinflussen, haben sich unterschiedliche Strategien entwickelt. Dazu zählen die Strategien Big-Bang (oder Recreate), Rolling, Blue-Green, Canary, A-B Testing und Shadow. (Vgl. \parencite{deployStraDie}) In dieser Arbeit wird die Rolling Strategie, als Kubernetes Standard Strategie, der komplexeren Canary Strategie gegenübergestellt. Dies soll zeigen, inwiefern der Mehraufwand der Implementierung komplexerer Strategien Vorteile bei der Einsparung des Fehlerbudgets und daraus resultierend, ein verlässlicheres System etabliert werden kann. Von der Gegenüberstellung weiterer Strategien wurde abgesehen, da die Recreate Strategie bedingte Downtime verursacht. (Vgl. S. 2 \parencite{deployStraDie}) A-B Testing wurde nicht in Betracht gezogen, da diese Strategie weniger für infrastrukturelle, sondern für Nutzererfahrung entwickelt wurde. (Vgl. S. 3 \parencite{deployStraDie} ) Weiterführend wurde von der Implementierung der Blue-Green- und Shadow Strategie, aufgrund des Mehraufwands für Ressourcen, abgesehen.
 	Für die Implementierung der Rolling- und Canary Strategie wurde sich für Argo-Rollouts entschieden, da sich unter Verwendung eines Service Meshes die prozentuale Lastverteilung realisieren lässt. Alternativ hätten sich die Strategien auch Kubernetes nativ implementieren lassen. Hier hätte die prozentuale Verteilung für das Canary Deployment auf der Replica-Anzahl der Pods basiert. 
 	
 	\subsection{Rolling Updates}
@@ -158,34 +164,43 @@ outer=2.5cm
 	\subsection{Canary}
 	Die Strategie des Canary Bereitstellungsprozesses wird durch anteilige Zurverfügungstellung definiert. Hierbei wird die neue Softwareversion nur einem Anteil der Nutzer zugänglich gemacht. Dies ermöglicht das Testen der Software unter realer Produktionslast. Ist validiert, dass die anteilig neu ausgerollte Softwareversion den Bedingungen von tatsächlichen Nutzern genügt, findet eine flächendeckende Aktualisierung der Softwareversion aller Pods statt. (Vgl. S. 3 \parencite{deployStraDie})
 	
-	\section{Site Reliability Engineering (SRE)}
-	Die AWS und RedHat Autoren beschreiben Site Reliability Engineering als Praxis, die mithilfe von Software Lösungen infrastrukturelle Prozesse automatisiert. Diese beinhalten unter anderem Systemverwaltung, Applikationsmonitoring und andere operative Aufgaben. Weiter wird beschrieben, dass diese Praxis dabei hilft, dass skalierbare Softwaresysteme, aufgrund der Automatisierung manueller Prozesse, zuverlässiger werden. (Vgl. \parencite{AWSSRE, RedHatSRE}) Die Redhat Autoren beschreiben weiter, dass SRE ein Gleichgewicht zwischen hochfrequenter Veröffentlichung neuer Features und der Zuverlässigkeit für Nutzer schafft. \parencite{RedHatSRE}
-
+	\section{Site Reliability Engineering}
+	SRE entstand aus der Notwendigkeit komplexe Softwaresysteme verlässlich, skalierbar, verfügbar und effizient zu verwalten. Mit dem SRE Ansatz wird das operative Verwalten von der Reaktion auf Fehler auf eine proaktive Vorsorge der Fehlerverhinderung und Fehlereindämmung gelenkt. (Vgl. Kapitel 1 \parencite{gopikrishna2025site}) Im Zuge dieser Arbeit bietet SRE den praktischen Ansatz zur Beantwortung der Forschungsfrage, da mithilfe der Definition von Schwellwerten und der Überwachung des Systems die Basis zur Beantwortung gelegt ist.
+	
 	\subsection{Konzepte und Prinzipien}
-	Chris Jones et al. beschreiben in der Einführung des Site Reliability Engineering Buchs für Kapitel 2 \textit{Principles} die Kernkonzepte für SRE. Dazu gehört Risiken einzugehen, die Definition von Service Level Objectives (SLO's), die Automatisierung infrastruktureller Prozesse, das Monitoring der Applikationen und die Entwicklung einer Veröffentlichungsstrategie. (Vgl. \parencite{GoogleSREPrinzipien}) Folgend werden die Punkte Risiken eingehen, Defintion von SLO's und Monitoring der Applikationen genauer beschrieben.
+	Als Schlüsselkompetenz wird SRE die Fähigkeit zugeordnet, Softwaresysteme verlässlich zu verwalten. (Vgl S. 284 BenefSRE) Weitere Kernkompetenzen von SRE belaufen sich auf die Skalierbarkeit, die Leistung, sowie die Effizienz des Systems. (Vgl. S. 3 \parencite{gopikrishna2025site})
+	Für die Überprüfbarkeit der Kernkompetenzen werden SLI’s, SLO’s und SLA’s definiert. SLI’s messen konkrete Aspekte, wie Latenz oder Fehlerrate, eines Systems. SLO’s werden definiert um einen Wertebereich einzugrenzen, innerhalb dessen sich die SLI’s bewegen dürfen. (Vgl. S. 3 \parencite{gopikrishna2025site}) Service Level Agreements werden als 	Vertragsverbindlichkeiten beschrieben, deren Nicht-Einhaltung meist finanzielle Konsequenzen nach sich trägt. (Vgl. S. 39f \parencite{GoogleSRE})
+
 	
 	\subsubsection{Risiken eingehen}
-	Zuerst beschreiben Alvidrez und Guliani, dass von einem Unternehmen wie Google erwartet würde, dass die Services zu 100\% zuverlässig wären. Doch im Folgenden wird festgestellt, dass ab einem bestimmten Punkt die Erhöhung der Zuverlässigkeit einer Software zur Verschlechterung des Services führt. Damit gehe einher, dass neue Features weniger häufig veröffentlicht werden könnten, während Nutzer den Unterschied von hoher zu extremer Verlässlichkeit kaum spürten. (Vgl. \parencite{GoogleSRERisk}) Im letzten Abschnitt des Kapitels beschreiben Roth und Quinito die Motivation für ein Fehlerbudget. Dabei erklären sie, dass ein Fehlerbudget als objektive Metrik genutzt wird, um einzuschätzen, wie unzuverlässig ein System während einer bestimmten Zeitperiode sein darf. Der Hauptvorteil eines solchen Fehlerbudgets wird als Gleichgewicht von Innovation und Zuverlässigkeit beschrieben. So lange sich das System innerhalb des Fehlerbudgets bewegt, können neue Features veröffentlicht werden, wird das Budget jedoch überschritten, finden innerhalb des definierten Zeitraums keine weiteren Veröffentlichungen statt. (Vgl. \parencite{GoogleSRERisk})
+	Da die Praxis von SRE maßgeblich durch Google geprägt wurde (Vgl. S. 4 \parencite{gopikrishna2025site}), wird sich an den Praktiken des Unternehmens und deren Zielmaßstab orientiert, wenngleich die Implementierung der Praktiken innerhalb einer Bachelorarbeit nicht der Stärke verschiedener Entwicklungsteams entspricht. Alvidrez und Guliani beschreiben, dass von einem Unternehmen wie Google erwartet würde, dass die Services zu 100\% zuverlässig wären. Doch im Folgenden wird festgestellt, dass ab einem bestimmten Punkt die Erhöhung der Zuverlässigkeit einer Software zur Verschlechterung des Services führt. Damit gehe einher, dass neue Features weniger häufig veröffentlicht werden könnten, während Nutzer den Unterschied von hoher zu extremer Verlässlichkeit kaum spürten. (Vgl. S. 25 \parencite{GoogleSRE}) Im letzten Abschnitt des Kapitels beschreiben Roth und Quinito die Motivation für ein Fehlerbudget. Dabei erklären sie, dass ein Fehlerbudget als objektive Metrik genutzt wird, um einzuschätzen, wie unzuverlässig ein System während einer bestimmten Zeitperiode sein dürfe. Der Hauptvorteil eines solchen Fehlerbudgets wird als Gleichgewicht von Innovation und Zuverlässigkeit beschrieben. So lange sich das System innerhalb des Fehlerbudgets bewege, können neue Features veröffentlicht werden, wird das Budget jedoch überschritten, finde innerhalb des definierten Zeitraums keine weitere Veröffentlichung statt. (Vgl. S. 33\parencite{GoogleSRE}) Mit der Definition des Fehlerbudgets wird in dieser Arbeit die Grenze zwischen Degradierung und Ausfall (siehe Abschnitt \textit{Downtime}) des Systems gesetzt.
 	
 	\subsubsection{Service Level Objectives}
-	Zuerst werden von Jones et al. Terminologien definiert. Die Service Level Indicators werden als definiertes quantitatives Maß eines Aspekts des Services beschrieben, bspw. Latenz oder Fehlerrate. Service Level Objectives werden als Zielwert oder Wertebereich von Service Level Indicators, bspw. die Fehlerrate ist weniger als ein Prozent, definiert. Service Level Agreements werden als Vertragsverbindlichkeiten beschrieben, deren Nicht-Einhaltung meist finanzielle Konsequenzen nach sich trägt. (Vgl. \parencite{GoogleSREChap4}) Für diese Arbeit sind die Service Level Indicators (SLI) und Service Level Objectives (SLO's) von Bedeutung, da sie den Rahmen erlaubter bzw. kalkulierter Downtime eingrenzen.
+	Jones et al. definieren die Terminologien in Zusammenhang mit SLO's. Die SLI's werden als definiertes quantitatives Maß eines Aspekts des Services beschrieben, bspw. Latenz oder Fehlerrate. Service Level Objectives werden als Zielwert oder Wertebereich von Service Level Indicators, bspw. die Fehlerrate ist weniger als ein Prozent, definiert. Service Level Agreements werden als Vertragsverbindlichkeiten beschrieben, deren Nicht-Einhaltung meist finanzielle Konsequenzen nach sich trägt. (Vgl. \parencite{GoogleSREChap4}) Für diese Arbeit sind die Service Level Indicators (SLI) und Service Level Objectives (SLO's) von Bedeutung, da sie den Rahmen erlaubter bzw. kalkulierter Downtime eingrenzen.
 	
 	\subsection{Monitoring und Observability}
-	Ewaschuk und Beyer beschreiben das Monitoring verteilter Systeme als ''Sammeln, Verarbeiten, Zusammenführen und Anzeigen quantitativer Echtzeitdaten'' \cite{GoogleSREMon} eines Systems. Weiter wird zwischen White-Box Monitoring, dem Auslesen Service-interner Metriken und Black-Box Monitoring, dem außerhalb sichtbaren Verhalten, ''wie ein Nutzer es sehen würde'' \cite{GoogleSREMon} unterschieden. Folgend werden die vier goldene Signale des Monitoring beschrieben, dazu gehören:
+	IEEE definiert einen \textit{Monitor} als "Ein Softwaretool oder Hardwaregerät,
+	das parallel zu einem System oder einer Komponente arbeitet und den Betrieb des Systems oder der Komponente überwacht, aufzeichnet, analysiert oder überprüft." S.49 \cite{IEEETerms}
+	\\
+	Observability wird als Eigenschaft der Kopplung von Zustand und Ausgabe beschrieben. (Vgl. s. 207 \parencite{gopal1993modern}) Einfacher ausgedrückt zeigt die Observability an, zu welchem Grad ein System überwacht werden kann (Vgl. S. 37 \parencite{SinaObservAndMon})
+	\\
+	Ewaschuk und Beyer beschreiben das Monitoring verteilter Systeme als ''Sammeln, Verarbeiten, Zusammenführen und Anzeigen quantitativer Echtzeitdaten'' S.59 \cite{GoogleSRE} eines Systems. Weiter wird zwischen White-Box Monitoring, dem Auslesen Service-interner Metriken und Black-Box Monitoring, dem außerhalb sichtbaren Verhalten, ''wie ein Nutzer es sehen würde'' S. 59 \cite{GoogleSRE} unterschieden. Folgend werden die vier goldene Signale des Monitoring beschrieben, dazu gehören:
 	\begin{itemize}
 		\item Latenz
 		\item Datenverkehr
 		\item Fehler
 		\item Sättigung
 	\end{itemize}
-	(Vgl. \parencite{GoogleSREMon})
-	
-	Die AWS Autoren beschreiben Observability für SRE als Prozess der Vorbereitung auf Unsicherheiten, wenn eine Software Nutzern zur Verfügung gestellt wird. Dabei werden Metriken, Logs und Traces gesammelt und ausgewertet, um Schwachstellen zu identifizieren und zu beheben. (Vgl. \parencite{AWSSRE})
+	(Vgl. S. 60 \parencite{GoogleSRE}) 
+	In dieser Arbeit wird das Monitoring der Latenzen und Fehlerraten verwendet, um die Gegnüberstellung der unterschiedlichen Deployment Strategien zu analysieren und zu bewerten. 
 
 	\section{Downtime}
-	In Wikipedia wird Downtime als ''die gebräuchliche Bezeichnung der Zeit, in der ein System, insb. ein Computersystem, nicht verfügbar bzw. nicht funktionstüchtig ist. Man unterscheidet zwischen geplanter und ungeplanter Downtime'' \cite{WikiDowntime} definiert. Die geplante Downtime in dieser Arbeit wird der Zeit zugeordnet, die sich innerhalb der definierten SLO's bewegt. Jede Nicht-Verfügbarkeit des Systems über diese Zeit hinaus wird der ungeplanten Downtime zugeordnet. Die Downtime-Freiheit im Sinne dieser Arbeit bewegt sich innerhalb definierter SLO Grenzen, da ein System mit 100\% Verfügbarkeit selbst für ein Unternehmen wie Google nicht erreichbar ist. (Vgl. \textit{Key Insights} \parencite{GoogleSRERisk})
+	Downtime wird als Zeitperiode beschrieben, in der ein Service oder System nicht erreichbar ist. Als Erweiterung dessen gilt Downtime auch als Zeitperiode der nicht-Verfügbarkeit innerhalb vereinbarter Schwellwerte. Zum Begriff der Downtime gibt es weitere Terminologien, die sich in Zusammenhang mit Downtime bringen lassen. Dazu gehören vom  (Total-)Ausfall über eine Degradierung bis hin zu Fehlern mit verschiedenen Bezügen zum Begriff Downtime. (Vgl. \parencite{SRESchoolDownt})
+	Für diese Arbeit lässt sich Downtime der Zeit zurodnen, die das System außerhalb definierter SLO Schwellwerte nicht funktionsfähig ist. Downtime-Freiheit bezieht sich auf die Abwesenheit der nicht-Funktionsfähigkeit außerhalb der definierten Schwellwerte. 
 	
 	\chapter{Konzeption und Methodik}
+	
+	\section{Fallbeispiel}
 	Als sinnbildliches Szenario wurde ein Online-Shop gewählt. Die Architektur des Systems besteht aus zwei Microservices, jeweils ein Repräsentant für den Shop und für die Transaktionen. Zwischen den Services besteht technisch keine Abhängigkeit. Im Microservice für die Transaktionen wird ein simulierter Fehler injiziert, während der Shop-Microservice als Referenz dient, um gegebenenfalls infrastrukturelle Fehler erkennbar zu machen, welche nicht auf die injizierten Fehler zurückzuführen sind. Da es sich hierbei um eine nutzerzentrierte Anwendung handelt, werden zwei Fehlerszenarien überprüft. Einerseits die Injektion einer Fehlerrate, in dem der Service einen internen Serverfehler produziert. Andererseits die Simulation verlängerter Antwortzeit. Es wurde jeweils überprüft, wie lange die jeweilige Analyse benötigt, den Fehler zu erkennen und anschließend den stabilen Zustand widerherzustellen. Weiter wurde berechnet, wie hoch der Verbrauch des Fehlerbudgets innerhalb des getesteten Zeitfensters war.
 	
 	\section{Systemarchitektur}
@@ -193,14 +208,14 @@ outer=2.5cm
 	Abbildung \ref{fig:system_arch} veranschaulicht diesen Zustand noch einmal tiefergehend. Hinzuzufügen ist bei der Systemarchitektur, dass Cilium als Service-Mesh konfiguriert wurde, um prozentuale Lastverteilung während des Canary Prozesses zu ermöglichen. Weiter hätte dies das Monitoring für die Nutzung der Services von außerhalb des Clusters vereinfacht. Da die Lasttests jedoch über den Cluster-internen DNS aufgelöst wurden, spielt die Implementierung dessen hier keine weitere Rolle.  
 	\begin{figure}[htbp]
 		\centering
-		\includegraphics[width=0.8\textwidth]{images/sys-arch.jpg}
+		\includegraphics[width=1.0\textwidth]{images/sys-arch.jpg}
 		\caption{Systemarchitektur: EKS Cluster Versuchsaufbau}
 		\label{fig:system_arch}
 	\end{figure} 
 	Die zu testende Applikation besteht aus zwei JVM-basierten Microservices, welche sinnbildlich einen Online-Shop abbilden. Hierfür wurde als Server-Framework Ktor verwendet. Um Fehler während des Deployment Prozesses zu vermeiden, wurden die Container der Microservices jeweils mit Readiness-Probes und einer Mindest-Ready-Zeit von 20 Sekunden ausgestattet. Dies verhindert, dass die Services Anfragen an Pods weiterleiten, die sich noch im Warmup-Prozess befinden. Weiter wurden die Container mit Pre-Stop Hooks von 20 Sekunden versehen, so wird verhindert, dass Anfragen an Pods geleitet werden, die bereits herunterfahren. Um die Erreichbarkeit der Pods sicherzustellen wurden Liveness-Probes implementiert. Diese Applikationen werden auf der Node mit dem Label \textit{role: app-node} gehostet. Die folgenden Software-Tools wurden so konfiguriert, dass sie auf der Node mit dem Label \textit{role: infra-node} ausgeführt werden. Um das Monitoring zu ermöglichen, wurden Prometheus und Grafana im Cluster deployed. Für die Implementierung der jeweiligen Deployment Strategie wurde Argo-Rollouts verwendet. Dies ermöglicht in Verbindung mit Prometheus die SLO-gesteuerte Analyse während des Deployment Vorgangs. Um die Nutzerlast auf den jeweiligen Service zu simulieren wurde K6 mit dem Constant-Arrival-Rate Szenario verwendet. Dies garantiert, dass die Services eine konstant gleichbleibende Last, unabhängig von der Antwortzeit bearbeiten müssen.
 	
-	\section{Theoretisches Modell}
-	Rein mathematisch lässt sich bereits beweisen, dass Canary-Releases einen Vorteil beim Verbrauch des Fehlerbudgets gegenüber Rolling Updates haben, in dem Sinne, dass bei gleicher Art des Fehlers, Nutzer kontinuierlich gesteigerten Zugriff auf die neue Softwareversion erhalten. Genauer erklärt am Beispiel: Es wird ein Fehler in der Softwareversion ausgerollt, der in zwei Prozent aller Fälle einen internen Serverfehler verursacht. Für Rolling Updates erhalten während und nach der Bereitstellung alle Nutzer Zugang zu der neuen fehlerhaften Version, der Einfluss auf den Verbrauch des Fehlerbudgets spiegelt sich direkt wider. Bei Canary Updates werden während des Bereitstellungsprozesses kontinuierlich mehr Nutzer auf die fehlerhafte Version Zugriff erhalten, demnach spiegelt sich während des Deployment Prozesses der Einfluss auf den Verbrauch des Fehlerbudgets anteilig wider. Erst mit dem Abschluss des Canary Releases spiegelt sich der Einfluss direkt auf das Fehlerbudget wider. Weiter ist logisch herzuleiten, dass die Detektionszeit für den Fehler sinkt, wenn sich die Analyse auf die Canary-Version beschränkt, anstatt den Fehler im gesamten System zu überprüfen. Diese Arbeit analysiert den Faktor, um den die Detektionszeit und der Verbrauch des Fehlerbudgets, bei gleicher zeitlicher Analyseintervallrate zwischen Rolling Update und Canary Release mit globaler und isolierter Aggregation sinkt.
+	\section{Konzeptioneller Vergleich der Fehlerauswirkungen bei schrittweisen und vollständigen Software-Bereitstellungen}
+	Rein mathematisch lässt sich bereits beweisen, dass Canary-Releases einen Vorteil beim Verbrauch des Fehlerbudgets gegenüber Rolling Updates haben, in dem Sinne, dass bei gleicher Art des Fehlers, Nutzer kontinuierlich gesteigerten Zugriff auf die neue Softwareversion erhalten. (Vgl. S. 103 \parencite{KhandeCan}) Genauer erklärt am Beispiel: Es wird ein Fehler in der Softwareversion ausgerollt, der in zwei Prozent aller Fälle einen internen Serverfehler verursacht. Für Rolling Updates erhalten während und nach der Bereitstellung alle Nutzer Zugang zu der neuen fehlerhaften Version, der Einfluss auf den Verbrauch des Fehlerbudgets spiegelt sich direkt wider. Bei Canary Updates werden während des Bereitstellungsprozesses kontinuierlich mehr Nutzer auf die fehlerhafte Version Zugriff erhalten, demnach spiegelt sich während des Deployment Prozesses der Einfluss auf den Verbrauch des Fehlerbudgets anteilig wider. Erst mit dem Abschluss des Canary Releases spiegelt sich der Einfluss direkt auf das Fehlerbudget wider. Weiter ist logisch herzuleiten, dass die Detektionszeit für den Fehler sinkt, wenn sich die Analyse auf die Canary-Version beschränkt, anstatt den Fehler im gesamten System zu überprüfen (Vgl. S. 236-238 \parencite{islam2024predictive}). Diese Arbeit analysiert den Faktor, um den die Detektionszeit und der Verbrauch des Fehlerbudgets, bei gleicher zeitlicher Analyseintervallrate zwischen Rolling Update und Canary Release mit globaler und isolierter Aggregation sinkt.
 	
 	\section{Parameter zur Analyse}
 	Für die Erhebung der Daten wurden jeweils fünf Testläufe über 30 Minuten absolviert. Jeder Service war dabei einer Last von 1200 Anfragen pro Sekunde ausgesetzt. Die injizierten Fehler wurden mittels Umgebungsvariablen realisiert. Da Rolling Updates nativ keine Möglichkeit der Analyse bieten, habe ich mich dazu entschieden, das Alerting von Grafana zu verwenden. \\
@@ -222,9 +237,13 @@ outer=2.5cm
 	
 	\subsection{Fehlerszenario A}
 	In Fehlerszenario A wurde der Transaktions-Microservice so konfiguriert, dass er bei der Beantwortung einer Anfrage in 5\% der Fälle einen internen Serverfehler meldete. Die zu überprüfende Metrik im Hinblick auf das SLO, ist das Verhältnis der Summe fehlerhaft beantworteter Anfragen zur Summe aller Anfragen.
+	\begin{equation}
+		\text{Fehlerrate} = \frac{\sum \text{fehlerhafter Anfragen}}{\sum \text{Anfragen}_{\text{gesamt}}}
+	\end{equation} (Vgl. S. 38 \parencite{GoogleSRE})
 	
 	\subsection{Fehlerszenario B}
 	In Fehlerszenario B wurde der Transaktions-Microservice so konfiguriert, dass er bei der Beantwortung einer Anfrage zusätzlich zur normalen Antwortzeit 15ms warten musste. Die zu überprüfende Metrik ist die Antwortzeit über 95\% aller Anfragen, die ohne Fehler beantwortet wurden.
+	(Vgl. S. 42 \parencite{GoogleSRE})	
 	
 	\subsection{Analyseintervalle}
 	Um ein einheitliches Analyse-Verfahren zu garantieren, wurden die Werte für die Analyseintervalle für alle Analysemethoden vereinheitlicht. Alle 60 Sekunden findet die Überprüfung der Metrik statt. Während für die AnalysisTemplates ein Fehlerlimit von eins gesetzt wurde, was eine einmalige Überschreitung des Schwellwerts zulässt, wurde der Alertmanager ebenso konfiguriert, sodass er bei der ersten Schwellwertüberschreitung den Status \textit{Pending} annimmt, demnach zulässt und erst bei der zweiten Schwellwertüberschreitung den alarmierten Zustand auslöst.
@@ -374,12 +393,15 @@ outer=2.5cm
 	\section{Ausblick}
 	In weiteren analytischen Arbeiten kann überprüft werden, inwiefern sich die Detektionszeit bei feinerer Gewichtung des Datenverkehrs verringern lässt, welchen Einfluss das Analyseintervall auf die Detektionszeiten hat oder inwiefern sich Deployments mit Blue-Green Strategie unterscheiden.
 	Weiter könnte der Kostenfaktor analysiert werden, der durch den Mehraufwand dedizierter Monitoring Nodes entsteht und anschließend in Verhältnis zur Ersparnis gesetzt werden.
+	\clearpage	
 	
 	% Literaturverzeichnis
 	\printbibliography
-	
+
+	\pagenumbering{Roman}
 	\appendix
-	\chapter{Eigenständigkeitserklärung}
+	\chapter*{Anhang}
+	\section*{Eigenständigkeitserklärung}
 	Hiermit erkläre Ich, dass die vorliegende Arbeit selbstständig und nur unter Verwendung der angegebenen Literatur und Hilfsmittel angefertigt habe. Stellen, die wörtlich oder sinngemäß aus Quellen entnommen wurden, sind als solche kenntlich gemacht. Diese Arbeit wurde in gleicher oder ähnlicher Form noch keiner anderen Prüfungsbehörde vorgelegt.
 	
 	\vspace{2cm}
