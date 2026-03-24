@@ -117,6 +117,7 @@ outer=2.5cm
 		MTTR \> Mean Time To Recover \\
 		MTTD \> Mean Time to Detect \\
 		API \> Application Programming Interface \\
+		VM \> Virtual Machine
 	\end{tabbing}	
 
 	% Inhaltsverzeichnis	
@@ -126,6 +127,8 @@ outer=2.5cm
 	% Einleitung
 	\chapter{Einleitung}
 	\pagenumbering{arabic}
+	
+	\textit{FF: }	\textit{In welchem Maße kann durch begrenzten Nutzerzugriff und die Verwendung von White-Box Monitoring der Einfluss fehlerbehafteter Softwareversionen auf ein Fehlerbudget beeinflusst werden?} 
 	
 	\chapter{Theoretische Grundlagen}
 	
@@ -204,8 +207,8 @@ outer=2.5cm
 	Als sinnbildliches Szenario wurde ein Online-Shop gewählt. Die Architektur des Systems besteht aus zwei Microservices, jeweils ein Repräsentant für den Shop und für die Transaktionen. Zwischen den Services besteht technisch keine Abhängigkeit. Im Microservice für die Transaktionen wird ein simulierter Fehler injiziert, während der Shop-Microservice als Referenz dient, um gegebenenfalls infrastrukturelle Fehler erkennbar zu machen, welche nicht auf die injizierten Fehler zurückzuführen sind. Da es sich hierbei um eine nutzerzentrierte Anwendung handelt, werden zwei Fehlerszenarien überprüft. Einerseits die Injektion einer Fehlerrate, in dem der Service einen internen Serverfehler produziert. Andererseits die Simulation verlängerter Antwortzeit. Es wurde jeweils überprüft, wie lange die jeweilige Analyse benötigt, den Fehler zu erkennen und anschließend den stabilen Zustand widerherzustellen. Weiter wurde berechnet, wie hoch der Verbrauch des Fehlerbudgets innerhalb des getesteten Zeitfensters war.
 	
 	\section{Systemarchitektur}
-	Das System wurde in einem AWS EKS Cluster mit zwei m7i-flex.large Nodes aufgesetzt. Diese wurden jeweils dediziert, einersetis für die Ausführung der Monitoring-Software und Lasttests und andererseits für die Ausführung der zu testenden Services, konfiguriert. Dies verhindert, dass die Messungen durch Konkurrenz um Hardware-Ressourcen beeinflusst werden. 
-	Abbildung \ref{fig:system_arch} veranschaulicht diesen Zustand noch einmal tiefergehend. Hinzuzufügen ist bei der Systemarchitektur, dass Cilium als Service-Mesh konfiguriert wurde, um prozentuale Lastverteilung während des Canary Prozesses zu ermöglichen. Weiter hätte dies das Monitoring für die Nutzung der Services von außerhalb des Clusters vereinfacht. Da die Lasttests jedoch über den Cluster-internen DNS aufgelöst wurden, spielt die Implementierung dessen hier keine weitere Rolle.  
+	Das System wurde in einem AWS EKS Cluster mit zwei m7i-flex.large Nodes aufgesetzt. Die Entscheidung für ein \textit{managed Cluster} liegt in der Einfachheit begründet, es wurde davon abgesehen unterschiedliche VM's als Nodes zu provisionieren. Es wurde sich für die m7i-flex.large Node entschieden, da diese die ressourcenstärksten zur Verfügung stehenden und im AWS-Free-Tier zugänglichen EC2-Instance Types für universelle Zwecke sind. (Vgl. \parencite{AWSInstType}) Diese wurden jeweils dediziert, einersetis für die Ausführung der Monitoring-Software und Lasttests und andererseits für die Ausführung der zu testenden Services, konfiguriert. Dies verhindert, dass die Messungen durch Konkurrenz um Hardware-Ressourcen beeinflusst werden. Die Wichtigkeit der Trennung liegt darin begründet, dass die Messergebnisse nicht eindeutig auf den injizierten Fehler sondern auf Ressourcen-Konkurrenz zurückgeführt werden könnten.  
+	Abbildung \ref{fig:system_arch} veranschaulicht diesen Zustand noch einmal tiefergehend. Hinzuzufügen ist bei der Systemarchitektur, dass Cilium als Service-Mesh konfiguriert wurde, um prozentuale Lastverteilung während des Canary Prozesses zu ermöglichen. Weiter hätte dies das Monitoring für die Nutzung der Services von außerhalb des Clusters vereinfacht. Da die Lasttests jedoch über den Cluster-internen DNS aufgelöst wurden, spielt die Implementierung dessen hier keine weitere Rolle. Die interne Cluster DNS Auflösung ist auf eine Verringerung der Kosten zurückzuführen, da AWS Datentransferkosten über öffentliche IP-Adressen berechnet (Vgl. \parencite{AWSBilling})
 	\begin{figure}[htbp]
 		\centering
 		\includegraphics[width=1.0\textwidth]{images/sys-arch.jpg}
@@ -218,8 +221,8 @@ outer=2.5cm
 	Rein mathematisch lässt sich bereits beweisen, dass Canary-Releases einen Vorteil beim Verbrauch des Fehlerbudgets gegenüber Rolling Updates haben, in dem Sinne, dass bei gleicher Art des Fehlers, Nutzer kontinuierlich gesteigerten Zugriff auf die neue Softwareversion erhalten. (Vgl. S. 103 \parencite{KhandeCan}) Genauer erklärt am Beispiel: Es wird ein Fehler in der Softwareversion ausgerollt, der in zwei Prozent aller Fälle einen internen Serverfehler verursacht. Für Rolling Updates erhalten während und nach der Bereitstellung alle Nutzer Zugang zu der neuen fehlerhaften Version, der Einfluss auf den Verbrauch des Fehlerbudgets spiegelt sich direkt wider. Bei Canary Updates werden während des Bereitstellungsprozesses kontinuierlich mehr Nutzer auf die fehlerhafte Version Zugriff erhalten, demnach spiegelt sich während des Deployment Prozesses der Einfluss auf den Verbrauch des Fehlerbudgets anteilig wider. Erst mit dem Abschluss des Canary Releases spiegelt sich der Einfluss direkt auf das Fehlerbudget wider. Weiter ist logisch herzuleiten, dass die Detektionszeit für den Fehler sinkt, wenn sich die Analyse auf die Canary-Version beschränkt, anstatt den Fehler im gesamten System zu überprüfen (Vgl. S. 236-238 \parencite{islam2024predictive}). Diese Arbeit analysiert den Faktor, um den die Detektionszeit und der Verbrauch des Fehlerbudgets, bei gleicher zeitlicher Analyseintervallrate zwischen Rolling Update und Canary Release mit globaler und isolierter Aggregation sinkt.
 	
 	\section{Parameter zur Analyse}
-	Für die Erhebung der Daten wurden jeweils fünf Testläufe über 30 Minuten absolviert. Jeder Service war dabei einer Last von 1200 Anfragen pro Sekunde ausgesetzt. Die injizierten Fehler wurden mittels Umgebungsvariablen realisiert. Da Rolling Updates nativ keine Möglichkeit der Analyse bieten, habe ich mich dazu entschieden, das Alerting von Grafana zu verwenden. \\
-	Für die Gewichtung des Datenverkehrs wurden folgende Schritte definiert, nach dem Erhöhen wurde das System für jeweils 5 Minuten überwacht, bevor der nächste Schritt erfolgte: 
+	Für die Erhebung der Daten wurden jeweils fünf Testläufe über 30 Minuten absolviert. Es wurden fünf Testläufe gewählt, um eine Reproduzierbarkeit der Versuche sicherzustellen. Es wurde sich für eine Länge des Testlaufs von 30 Minuten entschieden, um den gesamten Canary Prozess innerhalb des Zeitfensters betrachten zu können. Jeder Service war einer Last von 1200 Anfragen pro Sekunde ausgesetzt, bei diesem Wert wurde sich an der Arbeit von Gustafsson und Persson orientiert, die durch 1200 Requests pro Sekunde eine ca. 70\% Auslastung ihrer getesteten Server erreichten (Vgl. S. 36 \parencite{gustafsson2024comparison}) Die injizierten Fehler wurden mittels Umgebungsvariablen realisiert. Da Rolling Updates nativ keine Möglichkeit der Analyse bieten, wurde sich dazu entschieden, das Alerting von Grafana zu verwenden. \\
+	Für die Gewichtung des Datenverkehrs wurden folgende Schritte definiert, nach dem Erhöhen wurde das System für jeweils 5 Minuten überwacht, dies stellt fünf Analysen je erhöhter Gewichtung des Datenverkehr sicher, bevor der nächste Schritt erfolgte: 
 	\begin{itemize}
 		\item 10\% 
 		\item 50\%
@@ -233,28 +236,28 @@ outer=2.5cm
 		\item eine Verfügbarkeit von 99\%
 		\item eine Antwortzeit von 15ms für 95\% aller erfolgreichen Anfragen 
 	\end{itemize}
-	und beschreiben einen rollierenden Zeitraum von 30 Minuten, im Sinne der Testdauer.
+	und beschreiben einen rollierenden Zeitraum von 30 Minuten, im Sinne der Testdauer. Es wurde sich an den von Google zur Verfügung gestellten Praktiken orientiert. (Vgl. S. 43f. \parencite{GoogleSRE})
 	
 	\subsection{Fehlerszenario A}
-	In Fehlerszenario A wurde der Transaktions-Microservice so konfiguriert, dass er bei der Beantwortung einer Anfrage in 5\% der Fälle einen internen Serverfehler meldete. Die zu überprüfende Metrik im Hinblick auf das SLO, ist das Verhältnis der Summe fehlerhaft beantworteter Anfragen zur Summe aller Anfragen.
+	In Fehlerszenario A wurde der Transaktions-Microservice so konfiguriert, dass er bei der Beantwortung einer Anfrage in 5\% der Fälle einen internen Serverfehler meldete. Dieser injizierte Fehlerwert wurde gewählt, um eine ausreichend hohe Fehlerrate zu erwirken, ohne dabei in der initialen Canary Phase einen signifikanten Systemausfall zu provozieren. Die zu überprüfende Metrik im Hinblick auf das SLO, ist das Verhältnis der Summe fehlerhaft beantworteter Anfragen zur Summe aller Anfragen.
 	\begin{equation}
 		\text{Fehlerrate} = \frac{\sum \text{fehlerhafter Anfragen}}{\sum \text{Anfragen}_{\text{gesamt}}}
 	\end{equation} (Vgl. S. 38 \parencite{GoogleSRE})
 	
 	\subsection{Fehlerszenario B}
-	In Fehlerszenario B wurde der Transaktions-Microservice so konfiguriert, dass er bei der Beantwortung einer Anfrage zusätzlich zur normalen Antwortzeit 15ms warten musste. Die zu überprüfende Metrik ist die Antwortzeit über 95\% aller Anfragen, die ohne Fehler beantwortet wurden.
+	In Fehlerszenario B wurde der Transaktions-Microservice so konfiguriert, dass er bei der Beantwortung einer Anfrage zusätzlich zur normalen Antwortzeit 15ms warten musste. Diese Wartezeit wurde initial auf den doppelten SLO-Wert gesetzt, was während der erster Tests zu Systemausfällen führte, daher wurde der Wert insoweit nach unten korrigiert, ohne das SLO-Limit zu unterschreiten. Die zu überprüfende Metrik ist die Antwortzeit über 95\% aller Anfragen, die ohne Fehler beantwortet wurden.
 	(Vgl. S. 42 \parencite{GoogleSRE})	
 	
 	\subsection{Analyseintervalle}
-	Um ein einheitliches Analyse-Verfahren zu garantieren, wurden die Werte für die Analyseintervalle für alle Analysemethoden vereinheitlicht. Alle 60 Sekunden findet die Überprüfung der Metrik statt. Während für die AnalysisTemplates ein Fehlerlimit von eins gesetzt wurde, was eine einmalige Überschreitung des Schwellwerts zulässt, wurde der Alertmanager ebenso konfiguriert, sodass er bei der ersten Schwellwertüberschreitung den Status \textit{Pending} annimmt, demnach zulässt und erst bei der zweiten Schwellwertüberschreitung den alarmierten Zustand auslöst.
+	Um ein einheitliches Analyse-Verfahren zu garantieren, wurden die Werte für die Analyseintervalle für alle Analysemethoden vereinheitlicht. Alle 60 Sekunden findet die Überprüfung der Metrik statt. Dieser Wert orientiert sich an anderen wissenschaftlichen Arbeiten (Vgl. S. 244 \parencite{islam2024predictive}) und wurde zudem mit dem Standardwert des Scrape-Intervalls von Prometheus vereinheitlicht. (Vgl. \parencite{PromDef}) Während für die AnalysisTemplates ein Fehlerlimit von eins gesetzt wurde, was eine einmalige Überschreitung des Schwellwerts zulässt, wurde der Alertmanager ebenso konfiguriert, sodass er bei der ersten Schwellwertüberschreitung den Status \textit{Pending} annimmt, demnach zulässt und erst bei der zweiten Schwellwertüberschreitung den alarmierten Zustand auslöst. Es wurde sich für die Anzahl zwei der Überschreitung von Schwellwerte entschieden, um \textit{Flapping Alerts} auszuschließen. (Vgl. S. 176 \parencite{vinnakota2025creating})
 	
 	\chapter{Evaluation}
-	Für die Fehlerszenarien wurden die Zeit bis zur Detektion und die Zeit bis zur Wiederherstellung des stabilen Zustands mithilfe der Kubernetes Events bestimmt. Weiter werden die einzelnen Testläufe im zeitlichen Verlauf nebeneinander dargestellt und abschließend werden die gemittelten Werte der unterschiedlichen Deployment Strategien im Kombinationsdiagramm miteinander verglichen.
+	Für die Fehlerszenarien wurden die Zeit bis zur Detektion und die Zeit bis zur Wiederherstellung des stabilen Zustands mithilfe der Kubernetes Events bestimmt. So wird eine möglichst genauer zeitlicher Wert der Start- und Endzeit von Injektion, über Fehlererkennung und Ende des Rollbacks sichergestellt.
 	
-	\section{Analyse der injizierten Fehlerrate}
+	\section{Fehlerszenario A}
 	\subsection{Mittlere Detektionszeit und Mittlere Wiederherstellungszeit}
-	Abbildung \ref{fig:mttd-mttr-error} zeigt, dass die Zeit bis zur Detektion für Rolling Updates im Vergleich zu den Canary Methoden mit rund 3,3 Minuten am geringsten war. Gefolgt von der Canary Methode mit isolierter Metrikanalyse mit rund 8 Minuten, am längsten benötigte die Canary Methode mit globaler Analysemetrik, hier betrug die Zeit bis zur Detektion im Schnitt 12 Minuten. Die geringste Wiederherstellungszeit erreichte die Canary Methode mit isolierter Metrikanalyse, im Durchschnitt betrug die Zeit rund eine halbe Minute. Die zeitlichen Unterschiede lassen sich mit dem Versuchsaufbau erklären. Bei den Rolling Updates wurde der Fehler sofort erkennbar, da 5\% aller Anfragen an das System fehlschlugen. Der zeitliche Unterschied zwischen den Canary Release Methoden lässt sich mit der verwendeten Analysemetrik begründen. Für die globale Aggregation musste die Gewichtung des Datenverkehrs erst einen signifikanten Schwellwert überschreiten, dass die Fehler nicht von den fehlerfreien Pods überlagert wurden. Die isolierte Analyse stellte hingegen das direkte Verhältnis der fehlerhaften Anfragen zu den Gesamtanfragen an die Canary Version gegenüber und konnte daher einen zeitlichen Vorteil erlangen. Diskutiert wird später dennoch, weshalb während der initialen 10\% Gewichtung keine Fehler erkannt wurden, obwohl diese mathematisch Vorkommen sollten.
-	Die Canary Methode mit globaler Analysemetrik stellte den stabilen Zustand innerhalb von rund einer Minute wieder her. Das Rolling Update benötigte für die Wiederherstellung des stabilen Zustands fast zwei Minuten. Die Wiederherstellungszeiten lassen sich in Zusammenhang mit der Anzahl an Pods bringen, die ausgetauscht werden mussten, um die fehlerfreie Version wieder lauffähig zu machen. Die Rolling Updates mussten der Reihe nach alle Pods ersetzen, während bei den Canary Release Methoden noch fehlerfreie Pods lauffähig waren. Der Zeitunterschied von isolierter und globaler Analysemetrik lässt sich weiter in Zusammenhang mit den fehlerfrei laufenden Pods bringen. Die Canary Methode mit isolierter Metrikanalyse detektierte die Fehler im zweiten Schritt, hier waren 50\% User-Traffic auf die neue Version umgeleitet und die fehlerfreie Pod Anzahl betrug zwei. Die Canary Methode mit globaler Analysemetrik detektierte den Fehler erst im dritten Schritt mit 75\% User-Traffic, die fehlerfreie Pod Anzahl betrug eins.
+	Abbildung \ref{fig:mttd-mttr-error} zeigt, dass die Zeit bis zur Detektion für Rolling Updates im Vergleich zu den Canary Methoden mit rund 3,3 Minuten am geringsten war. Gefolgt von der Canary Methode mit isolierter Metrikanalyse mit rund 8 Minuten, am längsten benötigte die Canary Methode mit globaler Analysemetrik, hier betrug die Zeit bis zur Detektion im Schnitt 12 Minuten. Die geringste Wiederherstellungszeit erreichte die Canary Methode mit isolierter Metrikanalyse, im Durchschnitt betrug die Zeit rund eine halbe Minute. 
+	Die Canary Methode mit globaler Analysemetrik stellte den stabilen Zustand innerhalb von rund einer Minute wieder her. Das Rolling Update benötigte für die Wiederherstellung des stabilen Zustands fast zwei Minuten. 
 	
 	\begin{figure}[htbp]
 		\centering
@@ -264,7 +267,7 @@ outer=2.5cm
 	\end{figure} 
 	
 	\subsection{Die einzelnen Testläufe im zeitlichen Verlauf}
-	Die Diagramme zeigen den globalen Einfluss der injizierten Fehlerrate auf das System.
+	Die Diagramme \ref{fig:singles-rolling-error}, \ref{fig:singles-canary-g-error}, \ref{fig:singles-canary-i-error} zeigen den globalen Einfluss der injizierten Fehlerrate auf das System. \\
 	Beginnend mit dem Vergleich der einzelnen Testläufe für das Rolling Update zeigt Abbildung \ref{fig:singles-rolling-error}, dass die Fehlerrate den Maximalwert von 5\% innerhalb von 5 Minuten erreichte und dieser nach Abschluss des Rollbacks wieder auf null sank. 
 	
 	\begin{figure}[htbp]
@@ -302,9 +305,9 @@ outer=2.5cm
 		\label{fig:mid-error-by-strategy}
 	\end{figure} 
 	
-	\section{Analyse der injizierten Latenz}
+	\section{Fehlerszenario B}
 	\subsection{Mittlere Detektionszeit und Mittlere Wiederherstellungszeit}
-	Abbildung \ref{fig:mttd-mttr-latenz} zeigt auch hier, dass das Rolling Update die geringste Zeit von der Fehlerinjektion bis zur Wiederherstellung des stabilen Zustands benötigte. Im Durchschnitt über alle Testläufe rund 6,9 Minuten. Das Canary Release mit isolierter Analysemetrik benötigte von der Injektion bis zur Wiederherstellung rund 7,3 Minuten, während das Canary Release mit globaler Metrikanalyse mit rund 13,3 Minuten am längsten benötigte. Wie auch im Fehlerszenario A lassen sich diese Zeiten mit dem direkten Einfluss des injizierten Fehlers für das Rolling Update erklären. Gleich gilt auch der Vorteil der isolierten Analyse der Canary Releases gegenüber dem globalen Ansatz, da für die isolierte Metrik, der direkte Einfluss der Canary Version überprüft wurde, hingegen musste bei der globalen Metrikanalyse erst eine ausreichend hohe Gewichtung des Datenverkehrs auf die Canary Version erreicht werden, damit der Fehler erkannt wurde.
+	Abbildung \ref{fig:mttd-mttr-latenz} zeigt auch hier, dass das Rolling Update die geringste Zeit von der Fehlerinjektion bis zur Wiederherstellung des stabilen Zustands benötigte. Im Durchschnitt über alle Testläufe rund 6,9 Minuten. Das Canary Release mit isolierter Analysemetrik benötigte von der Injektion bis zur Wiederherstellung rund 7,3 Minuten, während das Canary Release mit globaler Metrikanalyse mit rund 13,3 Minuten am längsten benötigte. 
 	
 	\begin{figure}[htbp]
 		\centering
@@ -315,7 +318,7 @@ outer=2.5cm
 	
 	\subsection{Die einzelnen Testläufe im zeitlichen Verlauf}
 	Die Diagramme zeigen den globalen Einfluss der injizierten Latenz auf das System.
-	Beginnend mit dem Vergleich der einzelnen Testläufe für das Rolling Update zeigt Abbildung \ref{fig:singles-rolling-latenz}, dass die Latenz Maximalwerte von über einer Sekunde Antwortzeit betrug. Dies ist mit blockierenden Threads zu erklären. Die Softwareversion hat es nicht geschafft die Anfragen in genügend geringer Zeit zu beantworten und die Pods wurden durch die Überschreitung der gesetzten Limits für CPU-Ressourcen kontinuierlich neu gestartet. Diese Unerreichbarkeit der Services ist als Downtime zu bewerten.
+	Beginnend mit dem Vergleich der einzelnen Testläufe für das Rolling Update zeigt Abbildung \ref{fig:singles-rolling-latenz}, dass die Latenz Maximalwerte von über einer Sekunde Antwortzeit betrug.
 	
 	\begin{figure}[h]
 		\centering
@@ -343,7 +346,7 @@ outer=2.5cm
 	\end{figure} 
 	
 	\subsection{Die gemittelten Werte der Deployment Strategien im Vergleich}
-	Der direkte Vergleich der Deployment Strategien bringt die Überlegenheit des isolierten gegenüber des globalen Analyseansatzes und der Analyse des Rolling Updates deutlich zum Vorschein. Die globale Analyse des Canary Releases und das Rolling Update überschritten das gesetzte Limit bei Weitem. Während die isolierte Metrikanalyse des Canary Releases keinen Einfluss auf das Gesamtsystem aufweist.
+	Der direkte Vergleich der Deployment Strategien bringt einen deutlichen Unterschied des isolierten gegenüber des globalen Analyseansatzes und der Analyse des Rolling Updates zum Vorschein. Die globale Analyse des Canary Releases und das Rolling Update überschritten das gesetzte Limit bei Weitem. Während die isolierte Metrikanalyse des Canary Releases keinen Einfluss auf das Gesamtsystem aufweist.
 	
 	\begin{figure}[htbp]
 		\centering
@@ -354,7 +357,7 @@ outer=2.5cm
 	
 	\section{Fehlerbudget Verbrauch pro Deployment Strategie}
 	\subsection{Fehlerszenario A}
-	Abbildung \ref{fig:mid-budget-consumption-error-by-strategy} zeigt den Einfluss der Analysemetrik und der Deployment Strategie auf den Verbrauch des Fehlerbudgets. Den geringsten Verbrauch erreichte die Canary Release Strategie mit isolierter Analyse. Der Bedarf betrug 7,4\% des Gesamtbudgets. Das Canary Release mit globaler Analyse erreichte einen Bedarf von 30,42\% am Gesamtbudget. Den höchsten Verbrauch des Fehlerbudgets bedurfte das Rolling Update mit 59,14\%. In diesem speziellen Szenario verringerte die Canary Release Strategie mit globaler Analysemetrik den Verbrauch des Fehlerbudgets im Gegensatz zum Rolling Update um 28,71 Prozentpunkte und die isolierte Analyse erreichte eine Verringerung des Budgetverbrauchs gegenüber dem Rolling um 51,72 Prozentpunkte. Weiter ist eine Verringerung des isolierten gegenüber des globalen Ansatzes um 23,01 Prozentpunkte festzuhalten.
+	Abbildung \ref{fig:mid-budget-consumption-error-by-strategy} zeigt den Einfluss der Analysemetrik und der Deployment Strategie auf den Verbrauch des Fehlerbudgets. Den geringsten Verbrauch erreichte die Canary Release Strategie mit isolierter Analyse. Der Bedarf betrug 7,4\% des Gesamtbudgets. Das Canary Release mit globaler Analyse erreichte einen Bedarf von 30,42\% am Gesamtbudget. Den höchsten Verbrauch des Fehlerbudgets bedurfte das Rolling Update mit 59,14\%. In diesem speziellen Szenario verringerte die Canary Release Strategie mit globaler Analysemetrik den Verbrauch des Fehlerbudgets im Gegensatz zum Rolling Update um 28,71\% und die isolierte Analyse erreichte eine Verringerung des Budgetverbrauchs gegenüber dem Rolling um 51,72\%. Weiter ist eine Verringerung des isolierten gegenüber des globalen Ansatzes um 23,01\% festzuhalten.
 	
 	\begin{figure}[htbp]
 		\centering
@@ -364,7 +367,7 @@ outer=2.5cm
 	\end{figure} 
 
 	\subsection{Fehlerszenario B}
-	Abbildung \ref{fig:mid-budget-consumption-latenz-by-strategy} zeigt ebenfalls den Einfluss der Analysemetrik und Deployment Strategie hinsichtlich des Verbrauchs des Fehlerbudgets. Während der geringste Bedarf von 0,25\% am Fehlerbudget durch die isolierte Analysemetrik des Canary Releases erreicht wurde, verbrauchte die globale Analyse 2,59\%. Das Rolling Update stellte mit rund 26\% den höchsten Bedarf am Fehlerbudget. Die Einsparung des Fehlerbudgets von Canary Release mit globaler Analyse gegenüber dem Rolling Update beläuft sich auf 23,4 Prozentpunkte. Das Canary Release mit isolierter Analyse erreichte eine Einsparung von 25,74 Prozentpunkten gegenüber dem Rolling Update. Die Verringerung der Canary Release Strategie mit isolierter gegenüber globaler Analyse beläuft sich auf 2,34 Prozentpunkte.
+	Abbildung \ref{fig:mid-budget-consumption-latenz-by-strategy} zeigt ebenfalls den Einfluss der Analysemetrik und Deployment Strategie hinsichtlich des Verbrauchs des Fehlerbudgets. Während der geringste Bedarf von 0,25\% am Fehlerbudget durch die isolierte Analysemetrik des Canary Releases erreicht wurde, verbrauchte die globale Analyse 2,59\%. Das Rolling Update stellte mit rund 26\% den höchsten Bedarf am Fehlerbudget. Die Einsparung des Fehlerbudgets von Canary Release mit globaler Analyse gegenüber dem Rolling Update beläuft sich auf 23,4 \%. Das Canary Release mit isolierter Analyse erreichte eine Einsparung von 25,74 \%n gegenüber dem Rolling Update. Die Verringerung der Canary Release Strategie mit isolierter gegenüber globaler Analyse beläuft sich auf 2,34 \%.
 
 	\begin{figure}[htbp]
 		\centering
@@ -374,9 +377,21 @@ outer=2.5cm
 	\end{figure} 
 	
 	\chapter{Diskussion}
+
+	\section{Interpretation der Ergebnisse}
+	\subsection{Fehlerszenario A}
+	\subsubsection{MTTD, MTTR}
+	Die zeitlichen Unterschiede lassen sich mit dem Versuchsaufbau erklären. Bei den Rolling Updates wurde der Fehler sofort erkennbar, da 5\% aller Anfragen an das System fehlschlugen. Der zeitliche Unterschied zwischen den Canary Release Methoden lässt sich mit der verwendeten Analysemetrik begründen. Für die globale Aggregation musste die Gewichtung des Datenverkehrs erst einen signifikanten Schwellwert überschreiten, dass die Fehler nicht von den fehlerfreien Pods überlagert wurden. Die isolierte Analyse stellte hingegen das direkte Verhältnis der fehlerhaften Anfragen zu den Gesamtanfragen an die Canary Version gegenüber und konnte daher einen zeitlichen Vorteil erlangen. Diskutiert wird später dennoch, weshalb während der initialen 10\% Gewichtung keine Fehler erkannt wurden, obwohl diese mathematisch Vorkommen sollten. \\
+	Die Wiederherstellungszeiten lassen sich in Zusammenhang mit der Anzahl an Pods bringen, die ausgetauscht werden mussten, um die fehlerfreie Version wieder lauffähig zu machen. Die Rolling Updates mussten der Reihe nach alle Pods ersetzen, während bei den Canary Release Methoden noch fehlerfreie Pods lauffähig waren. Der Zeitunterschied von isolierter und globaler Analysemetrik lässt sich weiter in Zusammenhang mit den fehlerfrei laufenden Pods bringen. Die Canary Methode mit isolierter Metrikanalyse detektierte die Fehler im zweiten Schritt, hier waren 50\% User-Traffic auf die neue Version umgeleitet und die fehlerfreie Pod Anzahl betrug zwei. Die Canary Methode mit globaler Analysemetrik detektierte den Fehler erst im dritten Schritt mit 75\% User-Traffic, die fehlerfreie Pod Anzahl betrug eins.
+	
+	\subsection{Fehlerszenario B}
+	\subsubsection{MTTD, MTTR}
+	Wie auch für das Fehlerszenario A lassen sich diese Zeiten mit dem direkten Einfluss des injizierten Fehlers für das Rolling Update erklären. Gleich gilt auch der Vorteil der isolierten Analyse der Canary Releases gegenüber dem globalen Ansatz, da für die isolierte Metrik, der direkte Einfluss der Canary Version überprüft wurde, hingegen musste bei der globalen Metrikanalyse erst eine ausreichend hohe Gewichtung des Datenverkehrs auf die Canary Version erreicht werden, damit der Fehler erkannt wurde.
+	\subsubsection{Einzeltestläufe im zeitlichen Verlauf}
+	Die massive Überschreitung des SLO-Limits für Rolling Updates ist mit blockierenden Threads zu erklären. Die Softwareversion hat es nicht geschafft die Anfragen in genügend geringer Zeit zu beantworten und die Pods wurden durch die Überschreitung der gesetzten Limits für CPU-Ressourcen kontinuierlich neu gestartet. Diese Unerreichbarkeit der Services ist als Downtime im Sinne des Totalausfalls zu bewerten.
 	
 	\section{Der erste Testlauf der injizierten Fehlerrate für das Canary Release mit globaler Metrikanalyse}
-	Beim Erstellen der Graphen für die einzelnen Testläufe war dieser direkt auffällig. Offensichtlicher wurde die Auffälligkeit nach der Erstellung der Analyse der Canary Releases mit isolierter Metrik. Die Werte stimmten beinahe überein. Von der Erklärung abgesehen, dass die Messwerte hier zufällig innerhalb von zwei Minuten den Schwellwert geringfügig überschritten, vermute ich, dass die Beachtung der JVM-Warmup-Zeiten eine Verbesserung der Detektionszeit hervorgerufen hätte, in dem Sinne, dass die Analyse mit einer initialen Verzögerung Fehler schneller detektiert hätte, da die ersten Pods bereits lauffähig und ansprechbar gewesen wären.
+	Beim Erstellen der Graphen für die einzelnen Testläufe war dieser direkt auffällig. Offensichtlicher wurde die Auffälligkeit nach der Erstellung der Analyse der Canary Releases mit isolierter Metrik. Die Werte stimmten beinahe überein. Von der Erklärung abgesehen, dass die Messwerte hier zufällig innerhalb von zwei Minuten den Schwellwert geringfügig überschritten, wird vermutet, dass die Beachtung der JVM-Warmup-Zeiten eine Verbesserung der Detektionszeit hervorgerufen hätte, in dem Sinne, dass die Analyse mit einer initialen Verzögerung Fehler schneller detektiert hätte, da die ersten Pods bereits lauffähig und ansprechbar gewesen wären.
 	
 	\section{Nicht gemessene Fehler während der ersten Canary Phase}
 	Bei der Analyse der Daten ist aufgefallen, dass praktisch keine Fehlerrate während der initialen Canary Phase, der Gewichtung des Datenverkehrs von 10\%, erfasst wurde. Mathematisch betrachtet, sollten mit 1200 Anfragen pro Sekunde, einer Gewichtung von 10\% und einer Fehlerrate von 5\%, sechs Fehler pro Sekunde und dementsprechend 360 Fehler pro Minute auftreten, jedoch erfasste weder die globale, noch die isolierte Analyse einen einzigen Fehler für die Gewichtung während der Zeit von fünf Minuten. Ein möglicher Grund für das Nicht-Erfassen der globalen Analyse dieser Fehlerrate kann statistische Irrelevanz sein. 360 Fehler zu 72.000 Anfragen pro Minute ist für die Aggregation der Metrik möglicherweise nicht signifikant genug. Andernfalls erklärt das die Nicht-Erkennung der isolierten Analyse nicht, da hier 360 Fehler zu 7.200 Anfragen stehen, was genau der injizierten Fehlerrate entspricht.  Eine genaue Erklärung der Nicht-Erkennung lässt sich aus meiner Sicht nicht treffen.
@@ -384,15 +399,31 @@ outer=2.5cm
 	\section{Detektionszeit in Zusammenhang des Fehlerbudgetverbrauchs}
 	Die Berechnung der Zeit bis zur Detektion des Fehlers zeigt deutlich, dass die Rolling Updates Analyse den Fehler am schnellsten erkannt hat. Jedoch hat diese Deployment Strategie auch den größten Verbrauch am Fehlerbudget. Wie im oberen Abschnitt beschrieben, wurden für die initiale Phase des Canary Releases jedoch kaum bis keine Defekte der Softwareversion festgestellt. Würde die Zeit der initialen Phase von der Detektionszeit abgezogen werden, so hätte die Canary Release Strategie mit isolierter Analyse eine geringere Detektionszeit gegenüber dem Rolling Update. Andersherum hätte die Datenverkehr Gewichtung innerhalb der initialen Phase auch schneller erhöht werden können, um einen statistisch signifikanten Schwellwert zu überschreiten und schneller Fehler zu provozieren. Letztlich zeigen die Daten der Detektionszeit im Zusammenhang mit dem Fehlerverbrauch, dass eine schnellere Detektionszeit nicht direkt mit einer Ersparnis des Fehlerbudgets einhergehen, sondern dass der Anteil betroffener Nutzer den entscheidenden Anteil am Verbrauch des Fehlerbudgets trägt.
 	
+	\section{Die Ergebnisse im Vergleich mit anderen wissenschaftlichen Arbeiten}
+	\subsection{Reduzierung der MTTR}
+	Unterschiedliche andere Arbeiten (\parencite{william2025deployment}, S. 127 \parencite{palvai2026designing}, \parencite{mohammed2021enhancing}) stellten bereits die Reduzierung der Zeit zum stabilen Zustand heraus. Dies konnte auch in dieser Arbeit validiert werden. Bei der Betrachtung injizierter Fehlerrate konnte die Canary Strategie mit globaler Metrik-Aggregation die Zeit bis zur Wiederherstellung des stabilen Zustands von 1,8 auf 0,9 Minuten halbieren. Die Canary Strategie mit isolierter Metrik-Aggregation konnte diese Zeit wiederum um die Hälfte auf 0,4 Minuten reduzieren. Ähnliche Werte wurden für die Wiederherstellungszeit bei injizierter Latenz beobachtet. Hier reduzierte sich die Zeit von der Erkennung des Defekts bis zum stabilen Zustand von 2,2 Minuten für die Rolling Strategie auf 1,0 Minuten für die Canary Strategie mit globaler Aggregation und die Canary Strategie mit isolierter Aggregation reduzierte die Zeit wiederum auf 0,4 Minuten. \\
+	
+	
+	\subsection{Risikenreduzierung durch den Einsatz von Canary Strategien}
+	Die Anomalienerkennung für Canary Veröffentlichungsstrategien wurde auch von \parencite{thasonautomated}(S. 444), \parencite{pappula2022containerized}(S. 66) und \parencite{KhandeCan}(S. 108) festgestellt.
+	
+	\chapter{Kritische Auseinandersetzung}
+	
+	Während diese Arbeit selbstverständlich mit hohen Ansprüchen im Bezug auf Best-Practices und der möglichst vollständigen Betrachtung der Forschungsfrage erstellt wurde, hat sie jedoch auch Grenzen. Zuerst sind hier die Hardware-Ressourcen als limitierender Faktor zu nennen. Zwei VM's mit jeweils 2000 virtuellem CPU und acht Gigabyte RAM sind leistungsstark, jedoch einzeln unter dem Niveau eines Office-Rechners niedriger Preisklasse. (\parencite{MM}) Ein weiterer Kritikpunkt der Nodes ist die Wahl von \textit{flex}-Instanzen, welche eine variable CPU-Leistung besitzen. Dies könnte zur Drosselung innerhalb intensiver Test-Tage geführt haben und wurde nicht berücksichtigt, die Testergebnisse legen dies jedoch nicht nah. \\
+	Am Versuchsaufbau kann ebenfalls Kritik geübt werden. Durch die Realisierung der Lasttests mithilfe Cluster-interner DNS Auflösung wurde eine Ebene des Netzwerkflusses (nach \ref{fig:k8s-svc-network}) und damit eine mögliche Fehlerquelle entfernt. Weitere Kritik kann an der Einfachheit der Systemarchitektur geübt werden. Dies stellt nur in sehr geringem Maße eine reale Microservice Architektur dar, wobei Latenz- und Fehlerraten dann durch kaskadierende Effekte entstehen. (Vgl. \parencite{yi2015explaining}) Dies lässt jedoch Spielraum für weiterführende wissenschaftliche Arbeiten. 
+	Am Versuchsaufbau sind die Canary-Steps kritisch zu betrachten. Der Sprung von 10 auf 50 Prozent Datenverkehr-Gewichtung ist sehr groß und da festgestellt wurde, dass während der initialen Phase keine Fehler erkannt wurden, sollte hier eine feinere Gewichtung gewählt werden.
+	
+	\section{Empfehlungen für weiterführende Forschungen}
+	Mit den Erkenntnissen dieser Arbeit wäre weiterführende Forschung im Hinblick auf den Einfluss der feineren Gewichtung für die Detektionszeit spannend. Zusätzlich kann untersucht werden, inwiefern sich kürzere Analyseintervalle auf die Ergebnisse dieser Forschung auswirken oder inwiefern sich Deployments mit Blue-Green Strategie unterscheiden. Als abschließende Forschung würde sich eine Analyse des Kostenfaktors, der durch den Mehraufwand dedizierter Monitoring Nodes entsteht anbieten, welche in das Verhältnis zum ersparten Fehlerbudget gesetzt wird.
+	
 	\chapter{Fazit}
-	Abschließend werden die Forschungsfrage beantwortet und ein Ausblick über mögliche sich dieser Arbeit anschließende Forschungsprojekte benannt.
 	
 	\section{Beantwortung der Forschungsfrage}
-	Im speziellen Versuchsaufbau von 1200 Anfragen pro Sekunde auf den jeweiligen Service und injizierten Fehlern von fünf Prozent Fehlerrate und 15 Millisekunden zusätzlicher Latenz, konnte das Canary Release mit SLO basierter Analyse bei gleicher überprüfter Metrik eine Reduzierung des Fehlerbudgetverbrauchs gegenüber Rolling Updates von 28\% für die injizierte Fehlerrate und 23\% für injizierte Latenz erreichen. Durch den Einsatz isolierter Analysen für Canary Releases war es möglich das Fehlerbudget um 51\% bei injizierter Fehlerrate und 25\% bei injizierter Latenz zu verringern. 
+	\textit{In welchem Maße kann durch begrenzten Nutzerzugriff und die Verwendung von White-Box Monitoring der Einfluss fehlerbehafteter Softwareversionen auf ein Fehlerbudget beeinflusst werden?} 
+	\\
+	Im speziellen Versuchsaufbau von 1200 Anfragen pro Sekunde auf den jeweiligen Service und injizierter Fehlerrate von fünf Prozent konnte mithilfe der Begrenzung des Nutzerzugriffs eine Verringerung des Fehlerbudgets von 28\% erreicht werden. Mithilfe von White-Box Monitoring, bzw. isolierter Metrik-Aggregation der Canary Version konnten weitere 23\% des Fehlerbudgets geschützt werden, was sich zu einer Gesamtverringerung von 51\% addiert. \\
+	Für die zusätzlich injizierte Latenz konnte durch die Begrenzung des Nutzerzugriffs 23\% des Fehlerbudgets gespart werden, während die isolierte Metrik-Aggregation weitere 2,3\% am Budget einsparen konnte und somit eine Gesamtverringerung von 25\% erreichen.
 	
-	\section{Ausblick}
-	In weiteren analytischen Arbeiten kann überprüft werden, inwiefern sich die Detektionszeit bei feinerer Gewichtung des Datenverkehrs verringern lässt, welchen Einfluss das Analyseintervall auf die Detektionszeiten hat oder inwiefern sich Deployments mit Blue-Green Strategie unterscheiden.
-	Weiter könnte der Kostenfaktor analysiert werden, der durch den Mehraufwand dedizierter Monitoring Nodes entsteht und anschließend in Verhältnis zur Ersparnis gesetzt werden.
 	\clearpage	
 	
 	% Literaturverzeichnis
